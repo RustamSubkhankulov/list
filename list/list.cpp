@@ -195,7 +195,6 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
         return -1;
     }
 
-
     list->capacity = List_capacity + 1;
     list->size = 0;
 
