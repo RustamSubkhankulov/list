@@ -197,6 +197,7 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
 
     list->capacity = List_capacity + 1;
     list->size = 0;
+    
 
     int ret = list_allocate_memory(list);
 
