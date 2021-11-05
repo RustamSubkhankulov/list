@@ -344,3 +344,18 @@ Invalid list structure data hash)
 
 DEF_ERR(727, LIST_INV_NEXT_HASH,
 Invalid list structure next hash)
+
+DEF_ERR(728, LIST_PREV_IS_NULL,
+Null pointer to the prev indexes array)
+
+DEF_ERR(729, LIST_INV_PREV_HASH,
+Invalid previous element array hash)
+
+DEF_ERR(730, LIST_DATA_PTR_CHANGED,
+Data pointer do not match with his correct value)
+
+DEF_ERR(731, LIST_NEXT_PTR_CHANGED,
+Next pointer do not match with his correct value)
+
+DEF_ERR(732, LIST_PREV_PTR_CHANGED,
+Prev pointer do not match with his correct value)

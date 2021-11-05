@@ -3,7 +3,20 @@
 #include "list.h"
 #include "../general/general.h"
 
-static int graph_counter = 0;
+//===================================================================
+
+//Static variables used to ensure that pointers to allocated 
+//dynamic memory have not changed
+
+static void* List_data_ptr = NULL;
+
+static void* List_next_ptr = NULL;
+
+static void* List_prev_ptr = NULL;
+
+//===================================================================
+
+static int Graph_counter = 0;
 
 //===================================================================
 
@@ -17,41 +30,43 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     fprintf(graph, "digraph G{\n");
     fprintf(graph, "rankdir=LR;\n");
 
-    fprintf(graph, "{\n");
-    fprintf(graph, "edge[color=white]\n");
     fprintf(graph, "node[shape=\"record\", style=\"rounded\"]\n");
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
-        fprintf(graph, "ELEMENT%u [label = \" index = %u | { data = " ELEM_SPEC " | <f0> next = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter]);
-        fprintf(graph, "ELEMENT%u -> ELEMENT%u\n", counter, counter + 1);
-    }
+        fprintf(graph, "ELEMENT%u [shape=\"record\", label = \" <f1> index = %u | { data = " ELEM_SPEC " | <f0> next = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter]);
 
-    for (unsigned counter = 0; counter < list->size; counter++)  {
-
+        if (counter != list->capacity - 1)
+            fprintf(graph, "ELEMENT%u -> ELEMENT%u [ color = \" white\"];\n", counter, counter + 1);
+        
         if (list->next[counter] != -1 && list->next[counter] != 0) {
 
-            fprintf(graph, "ELEMENT%u:<f0> -> ELEMENT%d [color = \"black\"]\n", counter, list->next[counter]);
+            fprintf(graph, "ELEMENT%u:<f0> -> ELEMENT%d [color = \"black\"];\n", counter, list->next[counter]);
         }
+
+        // if (counter == list->tail) {
+
+        //     fprintf(graph, "Tail[shape = \"record\"; style = \"rounded\" ];\n");
+        //     fprintf(graph, " { rank = same; ELEMENT%u; Tail;}\n", counter);
+        //     fprintf(graph, "Tail -> ELEMENT%u[color = \"black\";]\n", counter);
+        // }
     }
+
+    // fprintf(graph, " {rank = same; ");
+
+    // for (unsigned int counter = 0; counter < list->capacity; counter++) 
+    //     fprintf(graph, "ELEMENT%u; ", counter);
+
+    // fprintf(graph, "}\n");
+
+    fprintf(graph, "}");
+
     
-    fprintf(graph, "{ rank = same;");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-        
-        fprintf(graph, " \" ELEMENT%u \"; ");
-        fprintf(graph, "}\n");
-    }
-
-    fprintf(graph, "}\n");
-
-    fprintf(graph, "\n}\n");
-
-    system("dot list_graph.txt -Tpng -o list_graph.png");
-
     fclose(graph);
 
-    graph_counter++;
+    //system("rm list_graph.txt");
+
+    Graph_counter++;
 
     return 0;
 }
@@ -68,11 +83,32 @@ static int _list_save_hash(struct List* list, LOG_PARAMS) {
     list->base_hash = get_hash(list, sizeof(List) 
                                  - 3 * sizeof(int64_t));
 
+    if (list->data == NULL) {
+
+        error_report(LIST_DATA_IS_NULL);
+        return -1;
+    }
+
+    if (list->next == NULL) {
+
+        error_report(LIST_NEXT_IS_NULL);
+        return -1;
+    }
+
+    if (list->prev == NULL) {
+
+        error_report(LIST_PREV_IS_NULL);
+        return -1;
+    }
+
     list->data_hash =
            get_hash(list->data, sizeof(elem_t) * list->capacity);
 
     list->next_hash = 
            get_hash(list->next, sizeof(int) * list->capacity);
+
+    list->prev_hash = 
+           get_hash(list->prev, sizeof(int) * list->capacity);
 
     return 0;
 }
@@ -92,10 +128,13 @@ static int _list_hash_check(struct List* list, LOG_PARAMS) {
                                  - 3 * sizeof(int64_t));
 
     int64_t data_hash =
-           get_hash(list->data, sizeof(elem_t) * list->capacity);
+             get_hash(list->data, sizeof(elem_t) * list->capacity);
 
     int64_t next_hash = 
-           get_hash(list->next, sizeof(int) * list->capacity);
+             get_hash(list->next, sizeof(int) * list->capacity);
+
+    int64_t prev_hash =
+             get_hash(list->prev, sizeof(int) * list->capacity);
 
     if (list->base_hash != base_hash) {
 
@@ -112,6 +151,12 @@ static int _list_hash_check(struct List* list, LOG_PARAMS) {
     if (list->next_hash != next_hash) {
 
         error_report(LIST_INV_NEXT_HASH);
+        return 0;
+    }
+
+    if (list->prev_hash != prev_hash) {
+
+        error_report(LIST_INV_PREV_HASH);
         return 0;
     }
 
@@ -302,6 +347,74 @@ static int _list_set_zero(struct List* list, LOG_PARAMS) {
 
 //===================================================================
 
+static int _update_list_pointers_values(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    extern void* List_data_ptr;
+    List_data_ptr = list->data;
+
+    extern void* List_next_ptr;
+    List_next_ptr = list->next;
+
+    extern void* List_prev_ptr;
+    List_prev_ptr = list->prev;
+
+    return -1;
+}
+
+//===================================================================
+
+static int _list_pointers_values_check(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    extern void* List_data_ptr;
+    if (list->data != (elem_t*)List_data_ptr); {
+
+        error_report(LIST_DATA_PTR_CHANGED);
+        return 0;
+    }
+
+    if (list->data == NULL) {
+
+        error_report(LIST_DATA_IS_NULL);
+        return -1;
+    }
+
+    extern void* List_next_ptr;
+    if (list->next != (int*)List_next_ptr); {
+
+        error_report(LIST_NEXT_PTR_CHANGED);
+        return 0;
+    }
+
+    if (list->next == NULL) {
+
+        error_report(LIST_NEXT_IS_NULL);
+        return -1;
+    }
+
+    extern void* List_prev_ptr;
+    if (list->prev != (int*)List_prev_ptr); {
+
+        error_report(LIST_PREV_PTR_CHANGED);
+        return 0;
+    }
+
+    if (list->prev == NULL) {
+
+        error_report(LIST_PREV_IS_NULL);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
 static int _list_allocate_memory(struct List* list, LOG_PARAMS) {
 
     list_log_report();
@@ -322,6 +435,17 @@ static int _list_allocate_memory(struct List* list, LOG_PARAMS) {
     else    
         list->next = next_temp;
 
+    int* prev_temp = (int*)calloc(list->capacity, sizeof(int));
+
+    if (prev_temp == NULL)
+        error_report(CANNOT_ALLOCATE_MEM);
+    else 
+        list->prev = prev_temp;
+
+    int ret = update_list_pointers_values(list);
+    if (ret == -1)
+        return -1;
+
     return 0;
     
 }
@@ -333,23 +457,13 @@ static int _list_free_memory(struct List* list, LOG_PARAMS) {
     list_log_report();
     LIST_POINTER_CHECK(list);
 
-    if (list->data == NULL) {
-
-        error_report(LIST_DATA_IS_NULL);
+    int is_ok = list_pointers_values_check(list);
+    if (is_ok == 0)
         return -1;
-    }
 
-    else
-        free(list->data);
-
-    if (list->next == NULL) {
-
-        error_report(LIST_NEXT_IS_NULL);
-        return -1;
-    }
-    
-    else
-        free(list->next);
+    free(list->data);
+    free(list->prev);
+    free(list->next);
 
     return 0;
 }
@@ -377,6 +491,12 @@ int _list_dtor(struct List* list, LOG_PARAMS) {
         return -1;
     }
 
+    if (list->prev == NULL) {
+
+        error_report(LIST_PREV_IS_NULL);
+        return -1;
+    }
+
     int ret = list_free_memory(list);
 
     if (ret == -1)
@@ -389,12 +509,45 @@ int _list_dtor(struct List* list, LOG_PARAMS) {
 
 //===================================================================
 
+static int _list_set_prev_to_minus_one(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    if (list->prev == NULL) {
+
+        error_report(LIST_PREV_IS_NULL);
+        return -1;
+    }
+
+    for (long unsigned counter = 1;  
+                       counter < list->capacity; 
+                       counter++) {
+
+        list->prev[counter] = -1;
+    }
+
+    list->prev[0] = 0;
+
+    return 0;
+}
+
+//===================================================================
+
 static int _list_set_next_to_minus_one(struct List* list, LOG_PARAMS) {
 
     list_log_report();
     LIST_POINTER_CHECK(list);
 
-    for (long unsigned counter = 1;  counter < list->capacity; counter++) {
+    if (list->next == NULL) {
+
+        error_report(LIST_NEXT_IS_NULL);
+        return -1;
+    }
+
+    for (long unsigned counter = 1;  
+                       counter < list->capacity; 
+                       counter++) {
 
         list->next[counter] = -1;
     }
@@ -428,6 +581,8 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
     list->head = 0;
     list->tail = 0;
 
+    list->is_linarized = 1;
+
     if (List_capacity < list->capacity) {
 
         error_report(LIST_INV_MAX_CAPACITY);
@@ -442,10 +597,20 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
         return -1;
 
     list_set_next_to_minus_one(list);
+
+    #ifdef LIST_HASH
     
-    ret =  list_save_hash(list);
-    if (ret == -1)
-        return -1;
+        ret =  list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
+
+    #ifdef LIST_DEBUG
+
+        list->self_ptr = list;
+
+    #endif
 
     int is_ok = list_validator(list);
     if(is_ok == 0)
@@ -463,10 +628,23 @@ int _list_validator(struct List* list, LOG_PARAMS) {
 
     int err_val = 0;
 
-    if (list_hash_check(list) == 0) {
+    if (list_pointers_values_check(list) == 0) {
 
         err_val++;
     }
+
+    #ifdef LIST_HASH
+
+        if (list_hash_check(list) == 0) {
+
+            err_val++;
+        }
+
+    #endif
+
+    #ifde LIST_DEBUG
+
+        if ()
 
     if  (list->data == NULL) {
 
@@ -647,7 +825,33 @@ static int _list_out(struct List* list, FILE* output, LOG_PARAMS) {
 
         fprintf(output, "|_____");
     }
-    fprintf(output, "|\n\n");
+    fprintf(output, "|\n");
+
+    //=====================================================
+
+    fprintf(output, "|       ");
+
+    for (unsigned counter = 0; counter < list->capacity; counter++) {
+
+        fprintf(output, "|     ");
+    }
+    fprintf(output, "|\n");
+
+    fprintf(output, "| Prev  ");
+
+    for (unsigned counter = 0; counter < list->capacity; counter++) {
+
+        fprintf(output, "|%3d  ", list->data[counter]);
+    }
+    fprintf(output, "|\n");
+
+    fprintf(output, "|_______");
+
+    for (unsigned counter = 0; counter < list->capacity; counter++) {
+
+        fprintf(output, "|_____");
+    }
+    fprintf(output, "|\n"); 
 
     return 0;
 }
@@ -732,10 +936,14 @@ static int _list_push_first(struct List* list, elem_t value, int free,
     list->tail = (unsigned)free;
 
     list->size++;
+
+    #ifdef LIST_HASH
     
-    int ret = list_save_hash(list);
-    if (ret == -1)
-        return -1;
+        int ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #ednif
 
     is_ok = list_validator(list);
     if (is_ok == 0)
@@ -784,9 +992,13 @@ static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS) {
 
     list->size--;
 
-    ret = list_save_hash(list);
-    if (ret == -1)
-        return -1;
+    #ifdef LIST_HASH
+
+        ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
 
     is_ok = list_validator(list);
     if (is_ok == 0) {
@@ -897,9 +1109,13 @@ int _list_push_after_index(struct List* list, unsigned int index,
 
     list->size++;
 
-    int ret = list_save_hash(list);
-    if (ret == -1)
-        return -1;
+    #ifdef LIST_HASH
+
+        int ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
 
     is_ok = list_validator(list);
     if (is_ok == 0)
@@ -1014,10 +1230,14 @@ elem_t _list_pop_by_index(struct List* list, unsigned int index,
 
     list->next[index] = -1;
     list->size--;
-    
-    ret = list_save_hash(list);
-    if (ret == -1)
-        return -1;
+
+    #ifdef LIST_HASH
+
+        ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
 
     is_ok = list_validator(list);
     if (is_ok == 0) {
@@ -1145,9 +1365,13 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
 
     list->size++;
 
-    int ret = list_save_hash(list);
-    if (ret == -1)
-        return -1;
+    #ifdef LIST_HASH
+
+        int ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
 
     is_ok = list_validator(list);
     if (is_ok == 0) 

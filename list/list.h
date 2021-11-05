@@ -6,8 +6,8 @@
 struct List {
 
     elem_t* data;
-
     int* next;
+    int* prev;
 
     unsigned int head;
     unsigned int tail;
@@ -15,11 +15,21 @@ struct List {
     size_t capacity;
     unsigned int size;
 
+    int is_linarized;
+
+    #ifdef LIST_DEBUG
+
+        struct List* self_ptr;
+
+    #endif
+
     #ifdef LIST_HASH
        
        int64_t base_hash;
+
        int64_t data_hash;
        int64_t next_hash;
+       int64_t prev_hash;
 
     #endif
 };
@@ -153,6 +163,12 @@ struct List {
 
 #define list_draw_graph(list) \
        _list_draw_graph(list, LOG_ARGS)
+
+#define update_list_pointers_values(list) \
+       _update_list_pointers_values(list, LOG_ARGS)
+
+#define list_pointers_values_check(list) \
+       _list_pointers_values_check(list, LOG_ARGS)
 
 //===================================================================
 
