@@ -17,24 +17,30 @@ int main(int argc, char* argv[]) {
     struct List list = { 0 };
     err_val = list_ctor(&list); $
 
-    list_push_back(&list, 10); $
+    err_val = list_push_back(&list, 10); $
 
     list_push_back(&list, 20); $
 
     int pos30 = list_push_back(&list, 30); $
     int position = list_push_back(&list, 40); $
-    list_push_back(&list, 50); $
     list_push_back(&list, 60); $
     list_push_back(&list, 70); $
     list_push_back(&list, 80); $
     list_push_back(&list, 90); $
+    list_push_back(&list, 110); $
     list_push_after_index(&list, (unsigned int)position, 50);
 
-    list_push_back(&list, 100); $
+    list_pop_by_index(&list, 6, &err_val);
+    list_pop_by_index(&list, 1, &err_val);
+    list_pop_by_index(&list, 4, &err_val);
 
-    list_pop_by_index(&list, pos30, &err_val); 
+    list_push_back(&list, 120); $
+
+    //list_pop_by_index(&list, (unsigned)pos30, &err_val); 
 
     list_push_front(&list, 5);
+
+    list_pop_back(&list, &err_val);
 
     err_val = list_dtor(&list); $
     err_val = close_log_file(); $

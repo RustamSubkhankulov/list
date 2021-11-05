@@ -11,6 +11,7 @@ struct List {
 
     unsigned int head;
     unsigned int tail;
+    unsigned int free;
 
     size_t capacity;
     unsigned int size;
@@ -109,6 +110,8 @@ struct List {
 #define list_set_next_to_minus_one(list) \
        _list_set_next_to_minus_one(list, LOG_ARGS)
 
+#define list_set_prev_to_minus_one(list) \
+       _list_set_prev_to_minus_one(list, LOG_ARGS)       
 
 #define list_clear_check(list) \
        _list_clear_check(list, LOG_ARGS)

@@ -359,3 +359,12 @@ Next pointer do not match with his correct value)
 
 DEF_ERR(732, LIST_PREV_PTR_CHANGED,
 Prev pointer do not match with his correct value)
+
+DEF_ERR(733, LIST_INV_SELF_PTR,
+Invalid self pointer of list structure)
+
+DEF_ERR(734, LIST_INV_TAIL_NEXT,
+Next element index for tail is not zero)
+
+DEF_ERR(735, LIST_INV_HEAD_PREV,
+Previous element index for head element is not zero)
