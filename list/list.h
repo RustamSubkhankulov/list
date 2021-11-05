@@ -151,6 +151,9 @@ struct List {
 #define list_hash_check(list) \
        _list_hash_check(list, LOG_ARGS)
 
+#define list_draw_graph(list) \
+       _list_draw_graph(list, LOG_ARGS)
+
 //===================================================================
 
 int _list_ctor(struct List* list, LOG_PARAMS);
@@ -160,6 +163,8 @@ int _list_dtor(struct List* list, LOG_PARAMS);
 int _list_validator(struct List* list, LOG_PARAMS);
 
 int _list_dump(struct List* list, FILE* output, LOG_PARAMS);
+
+int _list_draw_graph(struct List* list, LOG_PARAMS);
 
 //===================================================================
 

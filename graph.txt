@@ -1,0 +1,14 @@
+
+ digraph G{ 
+    rankdir=LR;
+    node[color = "green",fintsize=20];
+    edge[color="blue"];
+    "Рождение и появление"[shape = "rectangle", style="rounded"];
+    Юность[shape = "rectangle", style="rounded"];
+    Зрелость[shape = "rectangle", style="rounded"];
+    Старость[shape = "rectangle", style="rounded"];
+    Смерть[shape = "rectangle", style="rounded"];
+    "Рождение и появление"->Юность->Зрелость->Старость->Смерть;
+    Юность->Смерть;
+    Зрелость->Смерть;
+ }
