@@ -13,7 +13,7 @@ typedef int elem_t;
 
 #define ELEM_SPEC "%d"
 
-const size_t List_capacity = 32;
+const size_t List_capacity = 16;
 
 //===================================================================
 

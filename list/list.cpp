@@ -15,7 +15,7 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     FILE* graph = fopen("list_graph.txt", "wb");
 
     fprintf(graph, "digraph G{\n");
-    fprintf(graph, "rankdir=HR;\n");
+    fprintf(graph, "rankdir=LR;\n");
 
     fprintf(graph, "{\n");
     fprintf(graph, "edge[color=white]\n");
@@ -24,18 +24,26 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
         fprintf(graph, "ELEMENT%u [label = \" index = %u | { data = " ELEM_SPEC " | <f0> next = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter]);
-        fprintf(graph, "ELEMENT%u -> ELEMENT%u", counter, counter + 1);
+        fprintf(graph, "ELEMENT%u -> ELEMENT%u\n", counter, counter + 1);
     }
-
-    fprintf(graph, "}\n");
 
     for (unsigned counter = 0; counter < list->size; counter++)  {
 
         if (list->next[counter] != -1 && list->next[counter] != 0) {
 
-            fprintf(graph, "ELEMENT%u: <f0> -> ELEMENT%d\n", counter, list->next[counter]);
+            fprintf(graph, "ELEMENT%u:<f0> -> ELEMENT%d [color = \"black\"]\n", counter, list->next[counter]);
         }
     }
+    
+    fprintf(graph, "{ rank = same;");
+
+    for (unsigned counter = 0; counter < list->capacity; counter++) {
+        
+        fprintf(graph, " \" ELEMENT%u \"; ");
+        fprintf(graph, "}\n");
+    }
+
+    fprintf(graph, "}\n");
 
     fprintf(graph, "\n}\n");
 

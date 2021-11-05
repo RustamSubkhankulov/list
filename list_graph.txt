@@ -1,40 +1,50 @@
 digraph G{
-rankdir=HR;
+rankdir=LR;
 {
 edge[color=white]
 node[shape="record", style="rounded"]
-ELEMENT0 [label = " index = 0 | { data = 0 | <next> next = 0 } " ];
-ELEMENT0 -> ELEMENT1ELEMENT1 [label = " index = 1 | { data = 10 | <next> next = 0 } " ];
-ELEMENT1 -> ELEMENT2ELEMENT2 [label = " index = 2 | { data = 20 | <next> next = 1 } " ];
-ELEMENT2 -> ELEMENT3ELEMENT3 [label = " index = 3 | { data = 30 | <next> next = 2 } " ];
-ELEMENT3 -> ELEMENT4ELEMENT4 [label = " index = 4 | { data = 10 | <next> next = 3 } " ];
-ELEMENT4 -> ELEMENT5ELEMENT5 [label = " index = 5 | { data = 20 | <next> next = 4 } " ];
-ELEMENT5 -> ELEMENT6ELEMENT6 [label = " index = 6 | { data = 30 | <next> next = 5 } " ];
-ELEMENT6 -> ELEMENT7ELEMENT7 [label = " index = 7 | { data = 0 | <next> next = -1 } " ];
-ELEMENT7 -> ELEMENT8ELEMENT8 [label = " index = 8 | { data = 0 | <next> next = -1 } " ];
-ELEMENT8 -> ELEMENT9ELEMENT9 [label = " index = 9 | { data = 0 | <next> next = -1 } " ];
-ELEMENT9 -> ELEMENT10ELEMENT10 [label = " index = 10 | { data = 0 | <next> next = -1 } " ];
-ELEMENT10 -> ELEMENT11ELEMENT11 [label = " index = 11 | { data = 0 | <next> next = -1 } " ];
-ELEMENT11 -> ELEMENT12ELEMENT12 [label = " index = 12 | { data = 0 | <next> next = -1 } " ];
-ELEMENT12 -> ELEMENT13ELEMENT13 [label = " index = 13 | { data = 0 | <next> next = -1 } " ];
-ELEMENT13 -> ELEMENT14ELEMENT14 [label = " index = 14 | { data = 0 | <next> next = -1 } " ];
-ELEMENT14 -> ELEMENT15ELEMENT15 [label = " index = 15 | { data = 0 | <next> next = -1 } " ];
-ELEMENT15 -> ELEMENT16ELEMENT16 [label = " index = 16 | { data = 0 | <next> next = -1 } " ];
-ELEMENT16 -> ELEMENT17ELEMENT17 [label = " index = 17 | { data = 0 | <next> next = -1 } " ];
-ELEMENT17 -> ELEMENT18ELEMENT18 [label = " index = 18 | { data = 0 | <next> next = -1 } " ];
-ELEMENT18 -> ELEMENT19ELEMENT19 [label = " index = 19 | { data = 0 | <next> next = -1 } " ];
-ELEMENT19 -> ELEMENT20ELEMENT20 [label = " index = 20 | { data = 0 | <next> next = -1 } " ];
-ELEMENT20 -> ELEMENT21ELEMENT21 [label = " index = 21 | { data = 0 | <next> next = -1 } " ];
-ELEMENT21 -> ELEMENT22ELEMENT22 [label = " index = 22 | { data = 0 | <next> next = -1 } " ];
-ELEMENT22 -> ELEMENT23ELEMENT23 [label = " index = 23 | { data = 0 | <next> next = -1 } " ];
-ELEMENT23 -> ELEMENT24ELEMENT24 [label = " index = 24 | { data = 0 | <next> next = -1 } " ];
-ELEMENT24 -> ELEMENT25ELEMENT25 [label = " index = 25 | { data = 0 | <next> next = -1 } " ];
-ELEMENT25 -> ELEMENT26ELEMENT26 [label = " index = 26 | { data = 0 | <next> next = -1 } " ];
-ELEMENT26 -> ELEMENT27ELEMENT27 [label = " index = 27 | { data = 0 | <next> next = -1 } " ];
-ELEMENT27 -> ELEMENT28ELEMENT28 [label = " index = 28 | { data = 0 | <next> next = -1 } " ];
-ELEMENT28 -> ELEMENT29ELEMENT29 [label = " index = 29 | { data = 0 | <next> next = -1 } " ];
-ELEMENT29 -> ELEMENT30ELEMENT30 [label = " index = 30 | { data = 0 | <next> next = -1 } " ];
-ELEMENT30 -> ELEMENT31ELEMENT31 [label = " index = 31 | { data = 0 | <next> next = -1 } " ];
-ELEMENT31 -> ELEMENT32}
+ELEMENT0 [label = " index = 0 | { data = 0 | <f0> next = 0 } " ];
+ELEMENT0 -> ELEMENT1
+ELEMENT1 [label = " index = 1 | { data = 10 | <f0> next = 2 } " ];
+ELEMENT1 -> ELEMENT2
+ELEMENT2 [label = " index = 2 | { data = 20 | <f0> next = 4 } " ];
+ELEMENT2 -> ELEMENT3
+ELEMENT3 [label = " index = 3 | { data = 5 | <f0> next = 1 } " ];
+ELEMENT3 -> ELEMENT4
+ELEMENT4 [label = " index = 4 | { data = 40 | <f0> next = 10 } " ];
+ELEMENT4 -> ELEMENT5
+ELEMENT5 [label = " index = 5 | { data = 50 | <f0> next = 6 } " ];
+ELEMENT5 -> ELEMENT6
+ELEMENT6 [label = " index = 6 | { data = 60 | <f0> next = 7 } " ];
+ELEMENT6 -> ELEMENT7
+ELEMENT7 [label = " index = 7 | { data = 70 | <f0> next = 8 } " ];
+ELEMENT7 -> ELEMENT8
+ELEMENT8 [label = " index = 8 | { data = 80 | <f0> next = 9 } " ];
+ELEMENT8 -> ELEMENT9
+ELEMENT9 [label = " index = 9 | { data = 90 | <f0> next = 11 } " ];
+ELEMENT9 -> ELEMENT10
+ELEMENT10 [label = " index = 10 | { data = 50 | <f0> next = 5 } " ];
+ELEMENT10 -> ELEMENT11
+ELEMENT11 [label = " index = 11 | { data = 100 | <f0> next = 0 } " ];
+ELEMENT11 -> ELEMENT12
+ELEMENT12 [label = " index = 12 | { data = 0 | <f0> next = -1 } " ];
+ELEMENT12 -> ELEMENT13
+ELEMENT13 [label = " index = 13 | { data = 0 | <f0> next = -1 } " ];
+ELEMENT13 -> ELEMENT14
+ELEMENT14 [label = " index = 14 | { data = 0 | <f0> next = -1 } " ];
+ELEMENT14 -> ELEMENT15
+ELEMENT15 [label = " index = 15 | { data = 0 | <f0> next = -1 } " ];
+ELEMENT15 -> ELEMENT16
+ELEMENT1:<f0> -> ELEMENT2 [color = "black"]
+ELEMENT2:<f0> -> ELEMENT4 [color = "black"]
+ELEMENT3:<f0> -> ELEMENT1 [color = "black"]
+ELEMENT4:<f0> -> ELEMENT10 [color = "black"]
+ELEMENT5:<f0> -> ELEMENT6 [color = "black"]
+ELEMENT6:<f0> -> ELEMENT7 [color = "black"]
+ELEMENT7:<f0> -> ELEMENT8 [color = "black"]
+ELEMENT8:<f0> -> ELEMENT9 [color = "black"]
+ELEMENT9:<f0> -> ELEMENT11 [color = "black"]
+ELEMENT10:<f0> -> ELEMENT5 [color = "black"]
+}
 
 }
