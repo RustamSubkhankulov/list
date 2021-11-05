@@ -47,7 +47,7 @@ int _is_memory_clear(void* base, size_t num, size_t size, LOG_PARAMS) {
 
 //===================================================================
 
-void* _my_recalloc(void* ptr, int number, int prev_number, size_t size_of_elem, 
+void* _my_recalloc(void* ptr, size_t number, size_t prev_number, size_t size_of_elem, 
                                                                     LOG_PARAMS) {
     general_log_report();
 
@@ -57,7 +57,7 @@ void* _my_recalloc(void* ptr, int number, int prev_number, size_t size_of_elem,
         return NULL;
     }
 
-    size_t new_size = (size_t)number * size_of_elem;
+    size_t new_size = number * size_of_elem;
     void* new_ptr = realloc(ptr, new_size);
 
     if (new_ptr == NULL) {
@@ -68,8 +68,8 @@ void* _my_recalloc(void* ptr, int number, int prev_number, size_t size_of_elem,
 
     if (number > prev_number) {
 
-        size_t offset = (size_t)(number - prev_number);
-        char* base = (char*)new_ptr + size_of_elem * (size_t)prev_number;
+        size_t offset = number - prev_number;
+        char* base = (char*)new_ptr + size_of_elem * prev_number;
 
         int value = clear_memory(base, offset, size_of_elem);
         if (value != 1) 
@@ -89,7 +89,7 @@ void ___System_Sleep(float _Duration) {
 
 //===================================================================
 
-int64_t get_hash_(void* void_base, unsigned int len, LOG_PARAMS) {
+int64_t get_hash_(void* void_base, long unsigned int len, LOG_PARAMS) {
 
     general_log_report();
 
@@ -101,7 +101,7 @@ int64_t get_hash_(void* void_base, unsigned int len, LOG_PARAMS) {
     const unsigned int seed = 0;
     const int r = 24;
 
-    unsigned int h = seed ^ len;
+    unsigned int h = seed ^ (unsigned int)len;
 
     const unsigned char* data = (const unsigned char*)base;
     unsigned int k = 0;

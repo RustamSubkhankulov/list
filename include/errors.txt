@@ -335,3 +335,12 @@ Invalid number 0f command line arguments)
 
 DEF_ERR(724, LIST_INVALID_INDEX,
 Invalid index of element)
+
+DEF_ERR(725, LIST_INV_BASE_HASH,
+Invalid list structure base hash)
+
+DEF_ERR(726, LIST_INV_DATA_HASH,
+Invalid list structure data hash)
+
+DEF_ERR(727, LIST_INV_NEXT_HASH,
+Invalid list structure next hash)

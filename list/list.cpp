@@ -5,6 +5,188 @@
 
 //===================================================================
 
+#ifdef LIST_HASH
+
+static int _list_save_hash(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    list->base_hash = get_hash(list, sizeof(List) 
+                                 - 3 * sizeof(int64_t));
+
+    list->data_hash =
+           get_hash(list->data, sizeof(elem_t) * list->capacity);
+
+    list->next_hash = 
+           get_hash(list->next, sizeof(int) * list->capacity);
+
+    return 0;
+}
+
+#endif
+
+//===================================================================
+
+#ifdef LIST_HASH
+
+static int _list_hash_check(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int64_t base_hash = get_hash(list, sizeof(List) 
+                                 - 3 * sizeof(int64_t));
+
+    int64_t data_hash =
+           get_hash(list->data, sizeof(elem_t) * list->capacity);
+
+    int64_t next_hash = 
+           get_hash(list->next, sizeof(int) * list->capacity);
+
+    if (list->base_hash != base_hash) {
+
+        error_report(LIST_INV_BASE_HASH);
+        return 0;
+    }
+    
+    if (list->data_hash != data_hash) {
+
+        error_report(LIST_INV_DATA_HASH);
+        return 0;
+    }
+    
+    if (list->next_hash != next_hash) {
+
+        error_report(LIST_INV_NEXT_HASH);
+        return 0;
+    }
+
+    return 1;
+}
+
+#endif
+
+//===================================================================
+
+// static int _list_decrease(struct List* list, LOG_PARAMS) {
+
+//     list_log_report();
+//     LIST_POINTER_CHECK(list);
+
+    // size_t prev_capacity = list->capacity;
+    // list->capacity /= 2;
+    
+    // if (list->capacity < List_capacity)
+    //     list->capacity = List_capacity;
+
+    // void* new_data = my_recalloc(list->data, 
+    //                              list->capacity, 
+    //                              prev_capacity, 
+    //                              sizeof(elem_t));
+    // if (new_data == NULL) {
+
+    //     error_report(CANNOT_ALLOCATE_MEM);
+    //     return -1;
+    // }
+
+    // else 
+    //     list->data = (elem_t*)new_data;
+
+//     void* new_next = my_recalloc(list->next,
+//                                  list->capacity,
+//                                  prev_capacity,
+//                                  sizeof(int));
+
+//     if (new_next == NULL) {
+
+//         error_report(CANNOT_ALLOCATE_MEM);
+//         return -1;
+//     }
+
+//     int is_ok = list_validator(list);
+//     if (is_ok == 0)
+//         return -1;
+
+//     return 0;
+// }
+
+//===================================================================
+
+// static int _list_increase(struct List* list, LOG_PARAMS) {
+
+//     list_log_report();
+//     LIST_POINTER_CHECK(list);
+
+//     size_t prev_capacity = list->capacity;
+//     list->capacity *= 2;
+    
+//     if (list->capacity > List_capacity)
+//         list->capacity = List_capacity;
+
+//     void* new_data = my_recalloc(list->data, 
+//                                  list->capacity, 
+//                                  prev_capacity, 
+//                                  sizeof(elem_t));
+
+    // if (new_data == NULL) {
+
+    //     error_report(CANNOT_ALLOCATE_MEM);
+    //     return -1;
+    // }
+
+    // else 
+    //     list->data = (elem_t*)new_data;
+
+    // void* new_next = my_recalloc(list->next,
+    //                              list->capacity,
+    //                              prev_capacity,
+    //                              sizeof(int));
+
+    // if (new_next == NULL) {
+
+    //     error_report(CANNOT_ALLOCATE_MEM);
+    //     return -1;
+    // }
+
+//     int is_ok = list_validator(list);
+//     if (is_ok == 0)
+//         return -1;
+
+//     return 0;
+// }
+
+//===================================================================
+
+// static int _list_resize(struct List* list, LOG_PARAMS) {
+
+//     list_log_report();
+//     LIST_POINTER_CHECK(list);
+
+//     if (list->size + 1 == list->capacity) {
+
+//         int ret = list_increase(list);
+//         if (ret == -1)
+//             return -1;
+//     }
+
+//     if (list->size < (list->capacity / 4)
+//      && list->capacity > List_capacity) {
+
+//         int ret = list_decrease(list);
+//         if (ret == -1)
+//             return -1;
+//     }
+
+//     int is_ok = list_validator(list);
+//     if (is_ok == 0)
+//         return -1;
+
+//     return 0;
+// }  
+
+//===================================================================
+
 static int _list_clear_check(struct List* list, LOG_PARAMS) {
 
     list_log_report();
@@ -126,6 +308,10 @@ int _list_dtor(struct List* list, LOG_PARAMS) {
     list_log_report();
     LIST_POINTER_CHECK(list);
 
+    int is_ok = list_validator(list);
+    if(is_ok == 0)
+        return -1;
+
     if (list->data == NULL) {
 
         error_report(LIST_DATA_IS_NULL);
@@ -189,22 +375,24 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
     list->head = 0;
     list->tail = 0;
 
-    if (Max_list_capacity < List_capacity) {
+    if (List_capacity < list->capacity) {
 
         error_report(LIST_INV_MAX_CAPACITY);
         return -1;
     }
 
-    list->capacity = List_capacity + 1;
+    list->capacity = List_capacity;
     list->size = 0;
     
-
     int ret = list_allocate_memory(list);
-
     if (ret == -1)
         return -1;
 
     list_set_next_to_minus_one(list);
+    
+    ret =  list_save_hash(list);
+    if (ret == -1)
+        return -1;
 
     int is_ok = list_validator(list);
     if(is_ok == 0)
@@ -221,6 +409,11 @@ int _list_validator(struct List* list, LOG_PARAMS) {
     LIST_POINTER_CHECK(list);
 
     int err_val = 0;
+
+    if (list_hash_check(list) == 0) {
+
+        err_val++;
+    }
 
     if  (list->data == NULL) {
 
@@ -457,7 +650,6 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
     int ret = list_out(list, output);
     if (ret == -1)            
         return -1;
-    
 
     return 0;
 }
@@ -487,6 +679,10 @@ static int _list_push_first(struct List* list, elem_t value, int free,
     list->tail = (unsigned)free;
 
     list->size++;
+    
+    int ret = list_save_hash(list);
+    if (ret == -1)
+        return -1;
 
     is_ok = list_validator(list);
     if (is_ok == 0)
@@ -535,6 +731,10 @@ static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS) {
 
     list->size--;
 
+    ret = list_save_hash(list);
+    if (ret == -1)
+        return -1;
+
     is_ok = list_validator(list);
     if (is_ok == 0) {
 
@@ -552,7 +752,7 @@ static int _list_find_free(struct  List* list, LOG_PARAMS) {
     list_log_report();
     LIST_POINTER_CHECK(list);
 
-    if (list->size == Max_list_capacity) {
+    if (list->size == List_capacity) {
 
         error_report(LIST_OVERFLOW);
         return -1;
@@ -595,7 +795,7 @@ static int _list_push_check(struct List* list, unsigned int index,
         return 0;
     }
 
-    if (list->size == Max_list_capacity) {
+    if (list->size == List_capacity - 1) {
 
         error_report(LIST_OVERFLOW);
         return 0;
@@ -643,6 +843,10 @@ int _list_push_after_index(struct List* list, unsigned int index,
         list->tail = (unsigned)free;
 
     list->size++;
+
+    int ret = list_save_hash(list);
+    if (ret == -1)
+        return -1;
 
     is_ok = list_validator(list);
     if (is_ok == 0)
@@ -757,6 +961,10 @@ elem_t _list_pop_by_index(struct List* list, unsigned int index,
 
     list->next[index] = -1;
     list->size--;
+    
+    ret = list_save_hash(list);
+    if (ret == -1)
+        return -1;
 
     is_ok = list_validator(list);
     if (is_ok == 0) {
@@ -778,6 +986,12 @@ int _list_push_back(struct List* list, elem_t value, LOG_PARAMS) {
     int is_ok = list_validator(list);
     if (is_ok == 0)
         return -1;
+
+    if (list->size == List_capacity - 1) {
+
+        error_report(LIST_OVERFLOW);
+        return -1;
+    }
 
     int free = list_find_free(list);
 
@@ -851,6 +1065,12 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
     if (is_ok == 0) 
         return -1;
 
+    if (list->size == List_capacity - 1) {
+
+        error_report(LIST_OVERFLOW);
+        return -1;
+    }
+
     int free = list_find_free(list);
 
     if (free == -1)
@@ -872,6 +1092,10 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
 
     list->size++;
 
+    int ret = list_save_hash(list);
+    if (ret == -1)
+        return -1;
+
     is_ok = list_validator(list);
     if (is_ok == 0) 
         return -1;
@@ -880,15 +1104,3 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
 }
 
 //===================================================================
-
-
-
-
-
-
-
-
-
-
-
-

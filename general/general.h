@@ -34,8 +34,8 @@
 
 //===================================================================
 
-void* _my_recalloc(void* ptr, int number, int prev_number, size_t size_of_elem,
-                                                                   LOG_PARAMS);
+void* _my_recalloc(void* ptr, size_t number, size_t prev_number, size_t size_of_elem,
+                                                                         LOG_PARAMS);
 
 int _clear_memory(void* base, size_t num, size_t size, LOG_PARAMS);
 
@@ -43,4 +43,4 @@ int _is_memory_clear(void* base, size_t num, size_t size, LOG_PARAMS);
 
 void ___System_Sleep(float _Duration);
 
-int64_t get_hash_(void* void_base, unsigned int len, LOG_PARAMS);
+int64_t get_hash_(void* void_base, long unsigned int len, LOG_PARAMS);

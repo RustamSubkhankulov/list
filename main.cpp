@@ -88,47 +88,31 @@ int main(int argc, char* argv[]) {
 
 
     list_push_front(&list, 10); $
+    list_push_front(&list, 20); $
+    list_push_front(&list, 30); $
     list_push_front(&list, 10); $
+    list_push_front(&list, 20); $
+    list_push_front(&list, 30); $
+    list_pop_back(&list, &err_val); $
+    list_pop_back(&list, &err_val); $
+    list_pop_back(&list, &err_val); $
+    list_pop_back(&list, &err_val); 
+    list_pop_back(&list, &err_val); $
+    list_pop_back(&list, &err_val); $
     list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
-    list_push_front(&list, 10); $
+    int index = list_push_front(&list, 20); $
+    list_push_front(&list, 30); $
+    list_push_after_index(&list, (unsigned)index, 25);
 
+    // list_push_front(&list, 10); $
+    // list_push_front(&list, 20); $
+    // list_push_front(&list, 30); $
 
     //хэш
-    //сделать чтобы нулевой не считался
-    //resize
 
 
     err_val = list_dtor(&list); $
-
+    err_val = close_log_file(); $
 }
 
 

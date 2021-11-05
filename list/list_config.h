@@ -13,9 +13,7 @@ typedef int elem_t;
 
 #define ELEM_SPEC "%d"
 
-const size_t List_capacity = 32;
-
-const size_t Max_list_capacity = 32;
+const size_t List_capacity = 256;
 
 //===================================================================
 
@@ -24,6 +22,8 @@ const size_t Max_list_capacity = 32;
 #define LIST_LOGS
 
 #define LIST_DEBUG
+
+#define LIST_HASH
 
 #define CMND_LINE_ARGS_NUMBER 2
 

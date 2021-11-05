@@ -14,6 +14,14 @@ struct List {
 
     size_t capacity;
     unsigned int size;
+
+    #ifdef LIST_HASH
+       
+       int64_t base_hash;
+       int64_t data_hash;
+       int64_t next_hash;
+
+    #endif
 };
 
 #ifdef LIST_LOGS
@@ -127,6 +135,21 @@ struct List {
 
 #define list_out(list, output) \
        _list_out(list, output, LOG_ARGS)
+
+#define list_resize(list) \
+       _list_resize(list, LOG_ARGS)
+
+#define list_increase(list) \
+       _list_increase(list, LOG_ARGS)
+
+#define list_decrease(list) \
+       _list_decrease(list, LOG_ARGS)
+
+#define list_save_hash(list) \
+       _list_save_hash(list, LOG_ARGS)
+
+#define list_hash_check(list) \
+       _list_hash_check(list, LOG_ARGS)
 
 //===================================================================
 
