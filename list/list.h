@@ -16,7 +16,7 @@ struct List {
     size_t capacity;
     unsigned int size;
 
-    int is_linarized;
+    int is_linearized;
 
     #ifdef LIST_DEBUG
 
@@ -98,6 +98,9 @@ struct List {
 #define list_push_after_index(list, index, value) \
        _list_push_after_index(list, index, value, LOG_ARGS)
 
+#define list_push_before_index(list, index, value) \
+       _list_push_before_index(list, index, value, LOG_ARGS)
+
 #define list_pop_by_index(list, index, err) \
        _list_pop_by_index(list, index, err, LOG_ARGS)
 
@@ -107,8 +110,8 @@ struct List {
 #define list_show_by_index(list, index, err) \
        _list_show_by_index(list, index, err, LOG_ARGS)
 
-#define list_set_next_to_minus_one(list) \
-       _list_set_next_to_minus_one(list, LOG_ARGS)
+#define list_set_next_in_order(list) \
+       _list_set_next_in_order(list, LOG_ARGS)
 
 #define list_set_prev_to_minus_one(list) \
        _list_set_prev_to_minus_one(list, LOG_ARGS)       
@@ -131,8 +134,8 @@ struct List {
 #define list_free_memory(list) \
        _list_free_memory(list, LOG_ARGS)
 
-#define list_find_free(list) \
-       _list_find_free(list, LOG_ARGS)
+#define list_get_free(list) \
+       _list_get_free(list, LOG_ARGS)
 
 #define list_push_check(list, index) \
        _list_push_check(list, index, LOG_ARGS)
@@ -173,11 +176,22 @@ struct List {
 #define list_pointers_values_check(list) \
        _list_pointers_values_check(list, LOG_ARGS)
 
+#define list_linearize(list) \
+       _list_linearize(list, LOG_ARGS)
+
+#define list_get_by_logical_number(list, number, err) \
+       _list_get_by_logical_number(list, number, err, LOG_ARGS)
+
+#define list_next_compare(list, first, second) \
+       _list_next_compare(list, first, second)
+
 //===================================================================
 
 int _list_ctor(struct List* list, LOG_PARAMS);
 
 int _list_dtor(struct List* list, LOG_PARAMS);
+
+int _list_linearize(struct List* list, LOG_PARAMS);
 
 int _list_validator(struct List* list, LOG_PARAMS);
 
@@ -198,8 +212,14 @@ elem_t _list_pop_back(struct List* list, int* err, LOG_PARAMS);
 int _list_push_after_index(struct List* list, unsigned int index, 
                                        elem_t value, LOG_PARAMS);
 
+int _list_push_before_index(struct List* list, unsigned int index,
+                                        elem_t value, LOG_PARAMS);
+
 elem_t _list_pop_by_index(struct List* list, unsigned int index,  
                                            int* err, LOG_PARAMS);
+
+elem_t _list_get_by_logical_number(struct List* list, int number, int* err,
+                                                            LOG_PARAMS);
 
 //==================================================================
 

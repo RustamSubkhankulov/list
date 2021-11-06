@@ -5,6 +5,51 @@
 
 //===================================================================
 
+#ifdef LIST_HASH
+
+    static int _list_save_hash(struct List* list, LOG_PARAMS);
+
+    static int _list_hash_check(struct List* list, LOG_PARAMS);
+
+#endif
+
+static int _list_clear_check(struct List* list, LOG_PARAMS);
+
+static int _list_poison_check(struct List* list, LOG_PARAMS);
+
+static int _list_poisoning(struct List* list, LOG_PARAMS);
+
+static int _list_set_zero(struct List* list, LOG_PARAMS);
+
+static int _update_list_pointers_values(struct List* list, LOG_PARAMS);
+
+static int _list_pointers_values_check(struct List* list, LOG_PARAMS);
+
+static int _list_set_prev_to_minus_one(struct List* list, LOG_PARAMS);
+
+static int _list_allocate_memory(struct List* list, LOG_PARAMS);
+
+static int _list_free_memory(struct List* list, LOG_PARAMS);
+
+static int _list_set_next_in_order(struct List* list, LOG_PARAMS);
+
+static int _list_out(struct List* list, FILE* output, LOG_PARAMS);
+
+static int _list_push_first(struct List* list, elem_t value, int free, 
+                                                           LOG_PARAMS);
+
+static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS);    
+
+static int _list_get_free(struct  List* list, LOG_PARAMS);
+
+static int _list_push_check(struct List* list, unsigned int index,  
+                                                       LOG_PARAMS);
+
+static int _list_pop_check(struct List* list, unsigned int index,
+                                                      LOG_PARAMS);
+
+//===================================================================
+
 //Static variables used to ensure that pointers to allocated 
 //dynamic memory have not changed
 
@@ -29,12 +74,13 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
 
     fprintf(graph, "digraph G{\n");
     fprintf(graph, "rankdir=LR;\n");
+    fprintf(graph, "rank = same; \n");
 
     fprintf(graph, "node[shape=\"record\", style=\"rounded\"]\n");
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
-        fprintf(graph, "ELEMENT%u [shape=\"record\", label = \" <f1> index = %u | { data = " ELEM_SPEC " | <f0> next = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter]);
+        fprintf(graph, "ELEMENT%u [shape=\"record\", label = \" <f1> index = %u | { data = " ELEM_SPEC " | <f0> next = %d | <f2> prev = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter], list->prev[counter]);
 
         if (counter != list->capacity - 1)
             fprintf(graph, "ELEMENT%u -> ELEMENT%u [ color = \" white\"];\n", counter, counter + 1);
@@ -42,6 +88,10 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
         if (list->next[counter] != -1 && list->next[counter] != 0) {
 
             fprintf(graph, "ELEMENT%u:<f0> -> ELEMENT%d [color = \"black\"];\n", counter, list->next[counter]);
+        }
+        if (list->prev[counter] != -1 && list->prev[counter] != 0) {
+
+            fprintf(graph, "ELEMENT%u:<f2> -> ELEMENT%d [color = \"blue\"];\n", counter, list->prev[counter]);
         }
 
         // if (counter == list->tail) {
@@ -281,7 +331,166 @@ static int _list_hash_check(struct List* list, LOG_PARAMS) {
 //         return -1;
 
 //     return 0;
-// }  
+// } 
+
+//===================================================================
+
+// static int list_swap(struct List* list, unsigned int first, unsigned int second) {
+
+//     my_swap(&list->data[first], &list->data[second], sizeof(elem_t));
+//     my_swap(&list->next[first], &list->next[second], sizeof(int));
+//     my_swap(&list->prev[first], &list->prev[second], sizeof(int));
+
+//     if (list->head == first) 
+//         list->head = second;
+//     else if (list->head == second)
+//         list->head = first;
+
+//     if (list->tail == first)
+//         list->tail = second;
+//     else if (list->tail == second)
+//         list->tail = first;
+
+//     if (list->free == first)
+//         list->free = second;
+//     else if (list->free == second)
+//         list->free = first;
+
+//     return 0;
+// }
+
+//===================================================================
+
+elem_t _list_get_by_logical_number(struct List* list, int number, int* err,
+                                                                LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    if (number <= 0 || number > (int)list->size) {
+
+        error_report(INV_LOGICAL_NUMBER);
+        *err = -1;
+        return -1;
+    }
+
+    int is_ok = list_validator(list);
+    if (is_ok == 0){
+
+        *err = -1;
+        return -1;
+    }
+
+    if (list->is_linearized) 
+
+        return list->data[number + (int)list->head - 1];
+
+    else {
+
+        int index = (int)list->head;
+        unsigned counter = 1;
+
+        while (counter < (unsigned)number) {
+
+            index = list->next[index];
+            counter++;
+        }
+            
+        return list->data[index];
+    }
+}
+
+//===================================================================
+
+// static int _list_next_compare(struct List* list, unsigned int first, unsigned int second) {
+
+//     if (list->prev[first] == -1)
+//         return 1;
+
+//     if (list->prev[second] == -1)
+//         return 0;
+
+//     if (list->next[first] == 0)
+//         return 1;
+
+//     else if (list->next[first] > list->next[second] && list->next[second] != 0)
+//         return 1;
+
+//     return 0;
+// }
+
+//===================================================================
+
+int _list_linearize(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int is_ok = list_validator(list);
+    if (is_ok == 0)
+        return -1;
+
+    if (list->is_linearized == 1)
+        return 0;
+
+    elem_t* new_data_ptr = (elem_t*)calloc(list->capacity, sizeof(elem_t));
+    if (new_data_ptr == NULL){
+
+        error_report(CANNOT_ALLOCATE_MEM);
+        return -1;
+    }
+
+    unsigned index = list->head;
+
+    for (unsigned counter = 1; counter <= list->size; counter++) {
+
+        new_data_ptr[counter] = list->data[index];
+        index = (unsigned)list->next[index];
+    }
+
+    if (list->data == List_data_ptr) {
+        
+        free(list->data);
+        list->data = new_data_ptr;
+    }
+    
+    else {
+
+        error_report(LIST_DATA_PTR_CHANGED);
+        return -1;
+    }
+
+    update_list_pointers_values(list);
+
+    for (unsigned counter = 1 ; counter < list->capacity; counter++) {
+
+        if (counter != list->size && counter != list->capacity - 1)
+            list->next[counter] = (int)counter + 1;
+        else  
+            list->next[counter] = 0;
+
+        if (counter <= list->size) 
+            list->prev[counter] = (int)counter - 1;
+        else 
+            list->prev[counter] = -1;
+    }
+
+    list->is_linearized = 1;
+
+    list->free = list->size + 1;
+    list->head = 1;
+    list->tail = list->size;
+
+    #ifdef LIST_HASH
+
+        int ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
+
+    return 0;
+}
 
 //===================================================================
 
@@ -520,7 +729,7 @@ static int _list_set_prev_to_minus_one(struct List* list, LOG_PARAMS) {
 
 //===================================================================
 
-static int _list_set_next_to_minus_one(struct List* list, LOG_PARAMS) {
+static int _list_set_next_in_order(struct List* list, LOG_PARAMS) {
 
     list_log_report();
     LIST_POINTER_CHECK(list);
@@ -535,9 +744,10 @@ static int _list_set_next_to_minus_one(struct List* list, LOG_PARAMS) {
                        counter < list->capacity; 
                        counter++) {
 
-        list->next[counter] = -1;
+        list->next[counter] = (int)counter + 1;
     }
 
+    list->next[list->capacity - 1] = 0;
     list->next[0] = 0;
     
     return 0;
@@ -566,8 +776,9 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
     
     list->head = 0;
     list->tail = 0;
+    list->free = 1;
 
-    list->is_linarized = 1;
+    list->is_linearized = 1;
 
     if (List_capacity < list->capacity) {
 
@@ -582,7 +793,7 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
     if (ret == -1)
         return -1;
 
-    ret = list_set_next_to_minus_one(list);
+    ret = list_set_next_in_order(list);
     if (ret == -1)
         return -1;
 
@@ -656,13 +867,13 @@ int _list_validator(struct List* list, LOG_PARAMS) {
         err_val++;
     }
 
-    if (list->head > list->capacity) {
+    if (list->head > list->capacity - 1) {
 
         error_report(LIST_INV_HEAD);
         err_val++;
     }
 
-    if (list->tail > list->capacity) {
+    if (list->tail > list->capacity - 1) {
 
         error_report(LIST_INV_HEAD);
         err_val++;
@@ -686,19 +897,13 @@ int _list_validator(struct List* list, LOG_PARAMS) {
         err_val++;
     }
 
-    if (list->next[list->tail] != 0) {
-
-        error_report(TAIL_NEXT_IS_NOT_ZERO);
-        err_val++;
-    }
-
-    if (list->size > list->capacity) {
+    if (list->size > list->capacity - 1) {
 
         error_report(INV_LIST_SIZE);
         err_val++;
     }
 
-    if (list->size > list->capacity) {
+    if (list->size > list->capacity - 1) {
 
         error_report(SIZE_MORE_THAN_CAP);
         err_val++;
@@ -888,6 +1093,8 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
     fprintf(output, "Singly linked list structure. Type: %s. Address: <%p>\n", 
                                                           TYPE_NAME, list);
 
+    fprintf(output, "List linerized: %d\n",list->is_linearized);
+
     fprintf(output, "List capacity : %lu\n", list->capacity);
 
     fprintf(output, "List size: %u\n", list->size);
@@ -902,20 +1109,33 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
     if (list->next == NULL)    
         fprintf(output, "ERROR: NULL next index array\n");
 
+    fprintf(output, "Previous element indexes array address: <%p>\n", list->prev);
+
+    if (list->prev == NULL)
+        fprintf(output, "ERROR: NULL previous index array\n");
+
     fprintf(output, "Head element: %u\n", list->head);
 
-    if (list->head > list->capacity || (list->head == 0 && list->size != 0))
+    if (list->head > list->capacity - 1 || (list->head == 0 && list->size != 0))
         fprintf(output, "ERROR: invalid head element\n");
 
     fprintf(output, "Tail element: %u\n", list->tail);
 
-    if (list->tail > list->capacity || (list->tail == 0 && list->size != 0))
+    if (list->tail > list->capacity - 1 || (list->tail == 0 && list->size != 0))
 
         fprintf(output, "ERROR: invalid tail element\n");
 
     if (list->head == list->tail && list->size > 1)
         fprintf(output, "ERROR: Tail equal to head while "
                                 "size is mote than one\n");
+
+    fprintf(output, "First free element: %u\n", list->free);
+
+    if (list->free > list->capacity - 1)
+        fprintf(output, "ERRROR: invalid list->free");
+
+    if (list->prev[list->free] != -1)
+        fprintf(output, "Prev for list->free is not -1");
 
     fprintf(output, "\n");
 
@@ -993,7 +1213,9 @@ static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS) {
 
     unsigned int last = list->tail;
 
-    list->next[last] = -1;
+    list->next[last] = (int)list->free;
+    list->free = last;
+
     list->prev[last] = -1;
     
     elem_t value = list->data[last];
@@ -1009,6 +1231,12 @@ static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS) {
     list->tail = 0;
 
     list->size--;
+
+    list->is_linearized = 1;
+
+    ret = list_set_next_in_order(list);
+    if (ret == -1)
+        return -1;
 
     #ifdef LIST_HASH
 
@@ -1030,26 +1258,37 @@ static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS) {
 
 //===================================================================
 
-static int _list_find_free(struct  List* list, LOG_PARAMS) {
+static int _list_get_free(struct  List* list, LOG_PARAMS) {
 
     list_log_report();
     LIST_POINTER_CHECK(list);
 
-    if (list->size == List_capacity) {
+    if (list->size == List_capacity - 1) {
 
         error_report(LIST_OVERFLOW);
         return -1;
     }
 
-    for (long unsigned counter = 0; counter < list->capacity; counter++) {
+    unsigned free = list->free;
+    list->free = (unsigned)list->next[free];
 
-        if (list->next[counter] == -1)
-            return (int)counter;
+    int ret = list_save_hash(list);
+    if (ret == -1)
+        return -1;
+
+    if (free > list->capacity - 1) {
+
+        error_report(LIST_INV_FREE);
+        return -1;
+    }    
+
+    if (list->prev[free] != -1)  {
+
+        error_report(LIST_INV_PREV_FOR_FREE_ELEM);
+        return -1;
     }
 
-    error_report(LIST_OVERFLOW);
-
-    return -1;
+    return (int)free;
 }
 
 //===================================================================
@@ -1072,7 +1311,13 @@ static int _list_push_check(struct List* list, unsigned int index,
         return 0;
     }
 
-    if (list->next[index] == -1) {
+    if (list->next[index] == -1) { //убрать
+
+        error_report(LIST_EMPTY_INDEX);
+        return 0;
+    }
+
+    if (list->prev[index] == -1) {
 
         error_report(LIST_EMPTY_INDEX);
         return 0;
@@ -1103,7 +1348,7 @@ int _list_push_after_index(struct List* list, unsigned int index,
     if (is_ok == 0)
         return -1;
 
-    int free = list_find_free(list);
+    int free = list_get_free(list);
 
     if (free == -1)
         return -1;
@@ -1117,8 +1362,10 @@ int _list_push_after_index(struct List* list, unsigned int index,
         return free;
     }
 
+    if (index != list->tail)
+        list->is_linearized = 0;
+
     list->data[free] = value;
-    //list->prev[list->next[index]] = free;
 
     list->next[free] = list->next[index];
 
@@ -1190,7 +1437,7 @@ static int _list_pop_check(struct List* list, unsigned int index,
         return 0;
     }
 
-    if (list->next[index] == -1) {
+    if (list->next[index] == -1) {        //заменить
 
         error_report(LIST_EMPTY_INDEX);
         return 0;
@@ -1231,10 +1478,13 @@ elem_t _list_pop_by_index(struct List* list, unsigned int index,
             return value;
     }
 
+    if (index != list->tail && index != list->head)
+        list->is_linearized = 0;
+
     //int prev = get_prev_element_index(list, index);
     int prev = list->prev[index];
 
-    if (prev == -1)
+    if (prev == -1) //вынести в проверкуб заменить на prev
         return -1;
 
     elem_t value = list->data[index];
@@ -1246,7 +1496,7 @@ elem_t _list_pop_by_index(struct List* list, unsigned int index,
     if (prev == 0)  {
         
         list->head = (unsigned)list->next[index];
-        list->prev[list->next[index]] = list->prev[index];
+        list->prev[list->next[index]] = 0;
     }
 
     else {
@@ -1259,7 +1509,9 @@ elem_t _list_pop_by_index(struct List* list, unsigned int index,
             list->prev[list->next[index]] = list->prev[index];   
     }
 
-    list->next[index] = -1;
+    list->next[index] = (int)list->free;
+    list->free = index;
+
     list->prev[index] = -1;
     list->size--;
 
@@ -1298,16 +1550,11 @@ int _list_push_back(struct List* list, elem_t value, LOG_PARAMS) {
         return -1;
     }
 
-    int free = list_find_free(list);
-
-    if (free == -1)
-        return -1;
-
     int ret = list_push_after_index(list, list->tail, value);
     if (ret == -1)
         return -1;
 
-    return free;
+    return ret;
 }
 
 //===================================================================
@@ -1376,7 +1623,7 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
         return -1;
     }
 
-    int free = list_find_free(list);
+    int free = list_get_free(list);
 
     if (free == -1)
         return -1;
@@ -1389,6 +1636,9 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
 
         return free;
     }
+
+    if ((unsigned)free > list->head)
+        list->is_linearized = 0;
 
     list->data[free] = value;
     list->next[free] = (int)list->head;

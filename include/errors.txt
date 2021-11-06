@@ -368,3 +368,12 @@ Next element index for tail is not zero)
 
 DEF_ERR(735, LIST_INV_HEAD_PREV,
 Previous element index for head element is not zero)
+
+DEF_ERR(736, LIST_INV_PREV_FOR_FREE_ELEM,
+Invalid free element: prev for free element is not -1)
+
+DEF_ERR(739, LIST_INV_FREE,
+List->free points out of list)
+
+DEF_ERR(740, INV_LOGICAL_NUMBER,
+Invalid number of element in logical order)

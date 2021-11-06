@@ -43,4 +43,6 @@ int _is_memory_clear(void* base, size_t num, size_t size, LOG_PARAMS);
 
 void ___System_Sleep(float _Duration);
 
+int my_swap(void* first_, void* second_, size_t size);
+
 int64_t get_hash_(void* void_base, long unsigned int len, LOG_PARAMS);
