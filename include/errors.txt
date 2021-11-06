@@ -377,3 +377,15 @@ List->free points out of list)
 
 DEF_ERR(740, INV_LOGICAL_NUMBER,
 Invalid number of element in logical order)
+
+DEF_ERR(741, LIST_CONNECTIONS_RUINED,
+Connections in list were ruined)
+
+DEF_ERR(742, LIST_PREV_IS_INCORRECT,
+List->prev is -1 for not empty element)
+
+DEF_ERR(743, LIST_ELEMENT_LOOP,
+Elements in list are looped)
+
+DEF_ERR(744, LIST_INVALID_FREE_AMOUNT,
+Invalid number of free eleemnts in list)

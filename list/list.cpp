@@ -48,6 +48,10 @@ static int _list_push_check(struct List* list, unsigned int index,
 static int _list_pop_check(struct List* list, unsigned int index,
                                                       LOG_PARAMS);
 
+static int _list_check_connections(struct List* list, LOG_PARAMS);
+
+static int _list_check_free_elements(struct List* list, LOG_PARAMS);
+
 //===================================================================
 
 //Static variables used to ensure that pointers to allocated 
@@ -80,18 +84,14 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
-        fprintf(graph, "ELEMENT%u [shape=\"record\", label = \" <f1> index = %u | { data = " ELEM_SPEC " | <f0> next = %d | <f2> prev = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter], list->prev[counter]);
+        fprintf(graph, "ELEMENT%u [shape=\"record\", label = \" <f1> index = %u | { <f2> prev = %d | data = " ELEM_SPEC " | <f0> next = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter], list->prev[counter]);
 
         if (counter != list->capacity - 1)
             fprintf(graph, "ELEMENT%u -> ELEMENT%u [ color = \" white\"];\n", counter, counter + 1);
         
-        if (list->next[counter] != -1 && list->next[counter] != 0) {
+        if (list->prev[counter] != -1 && list->next[counter] != 0) {
 
-            fprintf(graph, "ELEMENT%u:<f0> -> ELEMENT%d [color = \"black\"];\n", counter, list->next[counter]);
-        }
-        if (list->prev[counter] != -1 && list->prev[counter] != 0) {
-
-            fprintf(graph, "ELEMENT%u:<f2> -> ELEMENT%d [color = \"blue\"];\n", counter, list->prev[counter]);
+            fprintf(graph, "ELEMENT%u:<f0> -> ELEMENT%d: <f2> [color = \"black\"];\n", counter, list->next[counter]);
         }
 
         // if (counter == list->tail) {
@@ -477,7 +477,8 @@ int _list_linearize(struct List* list, LOG_PARAMS) {
 
     list->is_linearized = 1;
 
-    list->free = list->size + 1;
+    if (list->free != 0)
+        list->free = list->size + 1;
     list->head = 1;
     list->tail = list->size;
 
@@ -571,6 +572,108 @@ static int _update_list_pointers_values(struct List* list, LOG_PARAMS) {
     List_prev_ptr = list->prev;
 
     return 0;
+}
+
+//===================================================================
+
+static int _list_check_free_elements(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    unsigned free_amount = (unsigned)list->capacity - 1 - list->size;
+
+    unsigned free = list->free;
+    unsigned counter = 0;
+
+    while (free != 0) {
+
+        if (list->prev[free] != -1) {
+
+            error_report(LIST_PREV_IS_INCORRECT);
+            return 0;
+        }
+
+        counter++;
+
+        if (counter > free_amount){
+
+        error_report(LIST_INVALID_FREE_AMOUNT);
+        return 0;
+        }
+
+        free = (unsigned)list->next[free];
+    }
+
+    if (counter != free_amount) {
+
+        error_report(LIST_INVALID_FREE_AMOUNT);
+        return 0;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_check_connections(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    if (list->head == 0 
+     && list->tail == 0 
+     && list->size == 0)
+        return 1;
+
+    if (list->head > list->capacity - 1 
+     || list->tail > list->capacity - 1 
+     || (list->size != 0 && (list->tail == 0 || list->head == 0)))
+        
+        return 0;
+
+    if (list->prev[list->head] != 0 || list->next[list->tail] != 0) {
+
+        error_report(LIST_CONNECTIONS_RUINED);
+        return 0;
+    }
+    
+    unsigned index = list->head;
+    unsigned counter = 0;
+
+    while (index != list->tail) {
+
+        if (index != list->head
+         && list->next[list->prev[index]] != (int)index) {
+
+            error_report(LIST_CONNECTIONS_RUINED);
+            return 0;
+        }
+
+        if (index != list->tail
+         && list->prev[list->next[index]] != (int)index) {
+
+             error_report(LIST_CONNECTIONS_RUINED);
+             return 0;
+        }
+
+        if (list->prev[index] == -1) {
+
+            error_report(LIST_PREV_IS_INCORRECT);
+            return 0;
+        }
+
+        counter++;
+        index = (unsigned)list->next[index];
+
+        if (counter > list->size) {
+
+            error_report(LIST_ELEMENT_LOOP);
+            return 0;
+        }
+    }
+    
+    return 1;
 }
 
 //===================================================================
@@ -780,13 +883,13 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
 
     list->is_linearized = 1;
 
-    if (List_capacity < list->capacity) {
+    if (List_max_capacity < List_start_capacity) {
 
         error_report(LIST_INV_MAX_CAPACITY);
         return -1;
     }
 
-    list->capacity = List_capacity;
+    list->capacity = List_start_capacity;
     list->size = 0;
     
     int ret = list_allocate_memory(list);
@@ -850,7 +953,7 @@ int _list_validator(struct List* list, LOG_PARAMS) {
         if (list != list->self_ptr) {
 
             error_report(LIST_INV_SELF_PTR);
-            return -1;
+            err_val++;
         }
 
     #endif
@@ -925,6 +1028,16 @@ int _list_validator(struct List* list, LOG_PARAMS) {
             error_report(LIST_INV_HEAD_PREV);
             err_val++;
         }
+    }
+
+    if (list_check_connections(list) != 1) {
+
+        err_val++;
+    }
+
+    if (list_check_free_elements(list) != 1) {
+
+        err_val++;
     }
 
     #ifdef LIST_DEBUG
@@ -1133,6 +1246,7 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
 
     if (list->free > list->capacity - 1)
         fprintf(output, "ERRROR: invalid list->free");
+        
 
     if (list->prev[list->free] != -1)
         fprintf(output, "Prev for list->free is not -1");
@@ -1154,10 +1268,6 @@ static int _list_push_first(struct List* list, elem_t value, int free,
 
     list_log_report();
     LIST_POINTER_CHECK(list);
-
-    int is_ok = list_validator(list);
-    if (is_ok == 0)
-        return -1;
 
     if (list->head != 0 || list->tail != 0 || list->size != 0) {
 
@@ -1182,7 +1292,7 @@ static int _list_push_first(struct List* list, elem_t value, int free,
 
     #endif
 
-    is_ok = list_validator(list);
+    int is_ok = list_validator(list);
     if (is_ok == 0)
         return -1;
 
@@ -1200,13 +1310,6 @@ static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS) {
 
         error_report(POP_LAST_FALSE_CALL);
         
-        *err = -1;
-        return -1;
-    }
-
-    int is_ok = list_validator(list);
-    if (is_ok == 0) {
-
         *err = -1;
         return -1;
     }
@@ -1246,7 +1349,7 @@ static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS) {
 
     #endif
 
-    is_ok = list_validator(list);
+    int is_ok = list_validator(list);
     if (is_ok == 0) {
 
         *err = -1;
@@ -1263,7 +1366,7 @@ static int _list_get_free(struct  List* list, LOG_PARAMS) {
     list_log_report();
     LIST_POINTER_CHECK(list);
 
-    if (list->size == List_capacity - 1) {
+    if (list->size == list->capacity - 1) {
 
         error_report(LIST_OVERFLOW);
         return -1;
@@ -1323,7 +1426,7 @@ static int _list_push_check(struct List* list, unsigned int index,
         return 0;
     }
 
-    if (list->size == List_capacity - 1) {
+    if (list->size == list->capacity - 1) {
 
         error_report(LIST_OVERFLOW);
         return 0;
@@ -1617,7 +1720,7 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
     if (is_ok == 0) 
         return -1;
 
-    if (list->size == List_capacity - 1) {
+    if (list->size == list->capacity - 1) {
 
         error_report(LIST_OVERFLOW);
         return -1;

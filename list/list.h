@@ -185,6 +185,12 @@ struct List {
 #define list_next_compare(list, first, second) \
        _list_next_compare(list, first, second)
 
+#define list_check_connections(list) \
+       _list_check_connections(list, LOG_ARGS)
+
+#define list_check_free_elements(list) \
+       _list_check_free_elements(list, LOG_ARGS)
+
 //===================================================================
 
 int _list_ctor(struct List* list, LOG_PARAMS);
