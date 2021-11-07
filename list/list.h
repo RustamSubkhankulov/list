@@ -191,6 +191,9 @@ struct List {
 #define list_check_free_elements(list) \
        _list_check_free_elements(list, LOG_ARGS)
 
+#define list_prepare_after_increase(list, prev_cap) \
+       _list_prepare_after_increase(list, prev_cap, LOG_ARGS)
+
 //===================================================================
 
 int _list_ctor(struct List* list, LOG_PARAMS);

@@ -1,36 +1,125 @@
 digraph G{
-rankdir=LR;
-rank = same; 
-node[shape="record", style="rounded"]
-ELEMENT0 [shape="record", label = " <f1> index = 0 | { <f2> prev = 0 | data = 0 | <f0> next = 0 } " ];
-ELEMENT0 -> ELEMENT1 [ color = " white"];
-ELEMENT1 [shape="record", label = " <f1> index = 1 | { <f2> prev = 0 | data = 2 | <f0> next = -1 } " ];
-ELEMENT1 -> ELEMENT2 [ color = " white"];
-ELEMENT2 [shape="record", label = " <f1> index = 2 | { <f2> prev = 0 | data = 3 | <f0> next = -1 } " ];
-ELEMENT2 -> ELEMENT3 [ color = " white"];
-ELEMENT3 [shape="record", label = " <f1> index = 3 | { <f2> prev = 0 | data = 4 | <f0> next = -1 } " ];
-ELEMENT3 -> ELEMENT4 [ color = " white"];
-ELEMENT4 [shape="record", label = " <f1> index = 4 | { <f2> prev = 0 | data = 5 | <f0> next = -1 } " ];
-ELEMENT4 -> ELEMENT5 [ color = " white"];
-ELEMENT5 [shape="record", label = " <f1> index = 5 | { <f2> prev = 0 | data = 6 | <f0> next = -1 } " ];
-ELEMENT5 -> ELEMENT6 [ color = " white"];
-ELEMENT6 [shape="record", label = " <f1> index = 6 | { <f2> prev = 0 | data = 7 | <f0> next = -1 } " ];
-ELEMENT6 -> ELEMENT7 [ color = " white"];
-ELEMENT7 [shape="record", label = " <f1> index = 7 | { <f2> prev = 0 | data = 8 | <f0> next = -1 } " ];
-ELEMENT7 -> ELEMENT8 [ color = " white"];
-ELEMENT8 [shape="record", label = " <f1> index = 8 | { <f2> prev = 0 | data = 9 | <f0> next = -1 } " ];
-ELEMENT8 -> ELEMENT9 [ color = " white"];
-ELEMENT9 [shape="record", label = " <f1> index = 9 | { <f2> prev = 0 | data = 10 | <f0> next = -1 } " ];
-ELEMENT9 -> ELEMENT10 [ color = " white"];
-ELEMENT10 [shape="record", label = " <f1> index = 10 | { <f2> prev = 0 | data = 11 | <f0> next = -1 } " ];
-ELEMENT10 -> ELEMENT11 [ color = " white"];
-ELEMENT11 [shape="record", label = " <f1> index = 11 | { <f2> prev = 0 | data = 12 | <f0> next = -1 } " ];
-ELEMENT11 -> ELEMENT12 [ color = " white"];
-ELEMENT12 [shape="record", label = " <f1> index = 12 | { <f2> prev = 0 | data = 13 | <f0> next = -1 } " ];
-ELEMENT12 -> ELEMENT13 [ color = " white"];
-ELEMENT13 [shape="record", label = " <f1> index = 13 | { <f2> prev = 0 | data = 14 | <f0> next = -1 } " ];
-ELEMENT13 -> ELEMENT14 [ color = " white"];
-ELEMENT14 [shape="record", label = " <f1> index = 14 | { <f2> prev = 0 | data = 15 | <f0> next = -1 } " ];
-ELEMENT14 -> ELEMENT15 [ color = " white"];
-ELEMENT15 [shape="record", label = " <f1> index = 15 | { <f2> prev = 0 | data = 0 | <f0> next = -1 } " ];
+rankdir=HR;
+{rank = same; 
+ELEMENT0 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 0 </TD></TR>
+<TR><TD PORT="prev"> PREV = 0</TD>
+<TD PORT="data"> DATA = 0 </TD>
+<TD PORT="next"> NEXT = 0</TD></TR></TABLE>>];
+ELEMENT1 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 1 </TD></TR>
+<TR><TD PORT="prev"> PREV = 10</TD>
+<TD PORT="data"> DATA = 37 </TD>
+<TD PORT="next"> NEXT = 2</TD></TR></TABLE>>];
+ELEMENT1:<next> -> ELEMENT2:<prev>;
+ELEMENT2 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 2 </TD></TR>
+<TR><TD PORT="prev"> PREV = 1</TD>
+<TD PORT="data"> DATA = 38 </TD>
+<TD PORT="next"> NEXT = 3</TD></TR></TABLE>>];
+ELEMENT2:<next> -> ELEMENT3:<prev>;
+ELEMENT3 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 3 </TD></TR>
+<TR><TD PORT="prev"> PREV = 2</TD>
+<TD PORT="data"> DATA = 39 </TD>
+<TD PORT="next"> NEXT = 4</TD></TR></TABLE>>];
+ELEMENT3:<next> -> ELEMENT4:<prev>;
+ELEMENT4 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 4 </TD></TR>
+<TR><TD PORT="prev"> PREV = 3</TD>
+<TD PORT="data"> DATA = 40 </TD>
+<TD PORT="next"> NEXT = 5</TD></TR></TABLE>>];
+ELEMENT4:<next> -> ELEMENT5:<prev>;
+ELEMENT5 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 5 </TD></TR>
+<TR><TD PORT="prev"> PREV = 4</TD>
+<TD PORT="data"> DATA = 60 </TD>
+<TD PORT="next"> NEXT = 6</TD></TR></TABLE>>];
+ELEMENT5:<next> -> ELEMENT6:<prev>;
+ELEMENT6 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 6 </TD></TR>
+<TR><TD PORT="prev"> PREV = 5</TD>
+<TD PORT="data"> DATA = 80 </TD>
+<TD PORT="next"> NEXT = 7</TD></TR></TABLE>>];
+ELEMENT6:<next> -> ELEMENT7:<prev>;
+ELEMENT7 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 7 </TD></TR>
+<TR><TD PORT="prev"> PREV = 6</TD>
+<TD PORT="data"> DATA = 150 </TD>
+<TD PORT="next"> NEXT = 8</TD></TR></TABLE>>];
+ELEMENT7:<next> -> ELEMENT8:<prev>;
+ELEMENT8 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 8 </TD></TR>
+<TR><TD PORT="prev"> PREV = 7</TD>
+<TD PORT="data"> DATA = 160 </TD>
+<TD PORT="next"> NEXT = 9</TD></TR></TABLE>>];
+ELEMENT8:<next> -> ELEMENT9:<prev>;
+ELEMENT9 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 9 </TD></TR>
+<TR><TD PORT="prev"> PREV = 8</TD>
+<TD PORT="data"> DATA = 170 </TD>
+<TD PORT="next"> NEXT = 0</TD></TR></TABLE>>];
+ELEMENT10 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 10 </TD></TR>
+<TR><TD PORT="prev"> PREV = 11</TD>
+<TD PORT="data"> DATA = 36 </TD>
+<TD PORT="next"> NEXT = 1</TD></TR></TABLE>>];
+ELEMENT10:<next> -> ELEMENT1:<prev>;
+ELEMENT11 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 11 </TD></TR>
+<TR><TD PORT="prev"> PREV = 12</TD>
+<TD PORT="data"> DATA = 35 </TD>
+<TD PORT="next"> NEXT = 10</TD></TR></TABLE>>];
+ELEMENT11:<next> -> ELEMENT10:<prev>;
+ELEMENT12 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 12 </TD></TR>
+<TR><TD PORT="prev"> PREV = 13</TD>
+<TD PORT="data"> DATA = 34 </TD>
+<TD PORT="next"> NEXT = 11</TD></TR></TABLE>>];
+ELEMENT12:<next> -> ELEMENT11:<prev>;
+ELEMENT13 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 13 </TD></TR>
+<TR><TD PORT="prev"> PREV = 14</TD>
+<TD PORT="data"> DATA = 33 </TD>
+<TD PORT="next"> NEXT = 12</TD></TR></TABLE>>];
+ELEMENT13:<next> -> ELEMENT12:<prev>;
+ELEMENT14 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 14 </TD></TR>
+<TR><TD PORT="prev"> PREV = 15</TD>
+<TD PORT="data"> DATA = 32 </TD>
+<TD PORT="next"> NEXT = 13</TD></TR></TABLE>>];
+ELEMENT14:<next> -> ELEMENT13:<prev>;
+ELEMENT15 [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD COLSPAN="3" BGCOLOR="lightgrey"> INDEX = 15 </TD></TR>
+<TR><TD PORT="prev"> PREV = 0</TD>
+<TD PORT="data"> DATA = 31 </TD>
+<TD PORT="next"> NEXT = 14</TD></TR></TABLE>>];
+ELEMENT15:<next> -> ELEMENT14:<prev>;
+}
+{rank = same; ELEMENT0;
+LIST [shape=none, margin=0, label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TR><TD PORT="head"> HEAD 15 </TD></TR>
+<TR><TD PORT="tail"> TAIL 9 </TD></TR>
+<TR><TD PORT="free"> FREE 0 </TD>/TR></TABLE>>];
+}
+LIST:<tail> -> ELEMENT9;
+LIST:<head> -> ELEMENT15;
+LIST:<free> -> ELEMENT0;
 }

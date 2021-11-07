@@ -5,6 +5,21 @@
 
 //===================================================================
 
+//Static variables used to ensure that pointers to allocated 
+//dynamic memory have not changed
+
+static void* List_data_ptr = NULL;
+
+static void* List_next_ptr = NULL;
+
+static void* List_prev_ptr = NULL;
+
+//===================================================================
+
+static int Graph_counter = 0;
+
+//===================================================================
+
 #ifdef LIST_HASH
 
     static int _list_save_hash(struct List* list, LOG_PARAMS);
@@ -52,20 +67,8 @@ static int _list_check_connections(struct List* list, LOG_PARAMS);
 
 static int _list_check_free_elements(struct List* list, LOG_PARAMS);
 
-//===================================================================
-
-//Static variables used to ensure that pointers to allocated 
-//dynamic memory have not changed
-
-static void* List_data_ptr = NULL;
-
-static void* List_next_ptr = NULL;
-
-static void* List_prev_ptr = NULL;
-
-//===================================================================
-
-static int Graph_counter = 0;
+static int _list_prepare_after_increase(struct List* list,size_t prev_capacity, 
+                                                                   LOG_PARAMS);
 
 //===================================================================
 
@@ -77,43 +80,39 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     FILE* graph = fopen("list_graph.txt", "wb");
 
     fprintf(graph, "digraph G{\n");
-    fprintf(graph, "rankdir=LR;\n");
-    fprintf(graph, "rank = same; \n");
-
-    fprintf(graph, "node[shape=\"record\", style=\"rounded\"]\n");
+    fprintf(graph, "rankdir=HR;\n");
+    fprintf(graph, "{rank = same; \n");
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
-        fprintf(graph, "ELEMENT%u [shape=\"record\", label = \" <f1> index = %u | { <f2> prev = %d | data = " ELEM_SPEC " | <f0> next = %d } \" ];\n", counter, counter, list->data[counter], list->next[counter], list->prev[counter]);
-
-        if (counter != list->capacity - 1)
-            fprintf(graph, "ELEMENT%u -> ELEMENT%u [ color = \" white\"];\n", counter, counter + 1);
+        fprintf(graph, "ELEMENT%u [shape=none, margin=0, label=<\n", counter);
+        fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");
+        fprintf(graph, "<TR><TD COLSPAN=\"3\" BGCOLOR=\"lightgrey\"> INDEX = %u </TD></TR>\n", counter);
+        fprintf(graph, "<TR><TD PORT=\"prev\"> PREV = %d</TD>\n", list->prev[counter]);
+        fprintf(graph, "<TD PORT=\"data\"> DATA = %d </TD>\n", list->data[counter]);
+        fprintf(graph, "<TD PORT=\"next\"> NEXT = %d</TD></TR></TABLE>>];\n", list->next[counter]);
         
-        if (list->prev[counter] != -1 && list->next[counter] != 0) {
-
-            fprintf(graph, "ELEMENT%u:<f0> -> ELEMENT%d: <f2> [color = \"black\"];\n", counter, list->next[counter]);
-        }
-
-        // if (counter == list->tail) {
-
-        //     fprintf(graph, "Tail[shape = \"record\"; style = \"rounded\" ];\n");
-        //     fprintf(graph, " { rank = same; ELEMENT%u; Tail;}\n", counter);
-        //     fprintf(graph, "Tail -> ELEMENT%u[color = \"black\";]\n", counter);
-        // }
+        if (list->next[counter] != 0 && list->prev[counter] != -1)
+            fprintf(graph, "ELEMENT%u:<next> -> ELEMENT%d:<prev>;\n", counter, list->next[counter]);
     }
+    fprintf(graph, "}\n");
 
-    // fprintf(graph, " {rank = same; ");
+    fprintf(graph, "{rank = same; ELEMENT0;\n");
+    fprintf(graph, "LIST [shape=none, margin=0, label=<\n");
+    fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");
+    fprintf(graph, "<TR><TD PORT=\"head\"> HEAD %u </TD></TR>\n", list->head);
+    fprintf(graph, "<TR><TD PORT=\"tail\"> TAIL %u </TD></TR>\n", list->tail);
+    fprintf(graph, "<TR><TD PORT=\"free\"> FREE %u </TD>/TR></TABLE>>];\n}\n", list->free);
 
-    // for (unsigned int counter = 0; counter < list->capacity; counter++) 
-    //     fprintf(graph, "ELEMENT%u; ", counter);
+    fprintf(graph, "LIST:<tail> -> ELEMENT%u;\n", list->tail);
+    fprintf(graph, "LIST:<head> -> ELEMENT%u;\n", list->head);
+    fprintf(graph, "LIST:<free> -> ELEMENT%u;\n", list->free);
 
-    // fprintf(graph, "}\n");
-
-    fprintf(graph, "}");
-
-    
+    fprintf(graph, "}\n");
     fclose(graph);
 
+    int ret = system("dot list_graph.txt -Tpng -o images/list.png");
+    //printf("\n\n system return %d\n\n", ret);
     //system("rm list_graph.txt");
 
     Graph_counter++;
@@ -217,92 +216,160 @@ static int _list_hash_check(struct List* list, LOG_PARAMS) {
 
 //===================================================================
 
-// static int _list_decrease(struct List* list, LOG_PARAMS) {
+static int _list_decrease(struct List* list, LOG_PARAMS) {
 
-//     list_log_report();
-//     LIST_POINTER_CHECK(list);
+    list_log_report();
+    LIST_POINTER_CHECK(list);
 
-    // size_t prev_capacity = list->capacity;
-    // list->capacity /= 2;
+    size_t prev_capacity = list->capacity;
+    list->capacity /= 2;
     
-    // if (list->capacity < List_capacity)
-    //     list->capacity = List_capacity;
+    if (list->capacity < List_start_capacity)
+        list->capacity = List_start_capacity;
 
-    // void* new_data = my_recalloc(list->data, 
-    //                              list->capacity, 
-    //                              prev_capacity, 
-    //                              sizeof(elem_t));
-    // if (new_data == NULL) {
+    void* new_data_ptr = my_recalloc(list->data, list->capacity, 
+                                     prev_capacity, sizeof(elem_t));
+    if (new_data_ptr == NULL) {
 
-    //     error_report(CANNOT_ALLOCATE_MEM);
-    //     return -1;
-    // }
+        error_report(CANNOT_ALLOCATE_MEM);
+        return -1;
+    }
+    else 
+        list->data = (elem_t*)new_data_ptr;
 
-    // else 
-    //     list->data = (elem_t*)new_data;
 
-//     void* new_next = my_recalloc(list->next,
-//                                  list->capacity,
-//                                  prev_capacity,
-//                                  sizeof(int));
+    void* new_next_ptr = my_recalloc(list->next, list->capacity,
+                                     prev_capacity, sizeof(int));
+    if (new_next_ptr == NULL) {
+        
+        error_report(CANNOT_ALLOCATE_MEM);
+        return -1;
+    }
+    else 
+        list->next = (int*)new_next_ptr;
 
-//     if (new_next == NULL) {
+    void* new_prev_ptr = my_recalloc(list->prev, list->capacity, 
+                                     prev_capacity, sizeof(int));
+    if (new_prev_ptr == NULL) {
 
-//         error_report(CANNOT_ALLOCATE_MEM);
-//         return -1;
-//     }
+        error_report(CANNOT_ALLOCATE_MEM);
+        return -1;
+    }
+    else
+        list->prev = (int*)new_prev_ptr;
 
-//     int is_ok = list_validator(list);
-//     if (is_ok == 0)
-//         return -1;
+    update_list_pointers_values(list);
 
-//     return 0;
-// }
+    list->next[list->capacity - 1] = 0;
+
+    #ifdef LIST_HASH
+
+        int ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+    #endif
+
+    int is_ok = list_validator(list);
+    if (is_ok == 0)
+        return -1;
+
+    return 0;
+}
 
 //===================================================================
 
-// static int _list_increase(struct List* list, LOG_PARAMS) {
+static int _list_increase(struct List* list, LOG_PARAMS) {
 
-//     list_log_report();
-//     LIST_POINTER_CHECK(list);
+    list_log_report();
+    LIST_POINTER_CHECK(list);
 
-//     size_t prev_capacity = list->capacity;
-//     list->capacity *= 2;
+    if (list->size == List_max_capacity - 1) {
+
+        error_report(LIST_OVERFLOW);
+        return -1;
+    }
+
+    size_t prev_capacity = list->capacity;
+    list->capacity *= 2;
     
-//     if (list->capacity > List_capacity)
-//         list->capacity = List_capacity;
+    if (list->capacity > List_max_capacity)
+        list->capacity = List_max_capacity;
 
-//     void* new_data = my_recalloc(list->data, 
-//                                  list->capacity, 
-//                                  prev_capacity, 
-//                                  sizeof(elem_t));
+    void* new_data_ptr = my_recalloc(list->data,  list->capacity, 
+                                     prev_capacity,  sizeof(elem_t));
+    if (new_data_ptr == NULL) {
 
-    // if (new_data == NULL) {
+        error_report(CANNOT_ALLOCATE_MEM);
+        return -1;
+    }
+    else 
+        list->data = (elem_t*)new_data_ptr;
 
-    //     error_report(CANNOT_ALLOCATE_MEM);
-    //     return -1;
-    // }
+    void* new_next_ptr = my_recalloc(list->next, list->capacity,
+                                     prev_capacity, sizeof(int));
+    if (new_next_ptr == NULL) {
 
-    // else 
-    //     list->data = (elem_t*)new_data;
+        error_report(CANNOT_ALLOCATE_MEM);
+        return -1;
+    }
+    else    
+        list->next = (int*)new_next_ptr;
 
-    // void* new_next = my_recalloc(list->next,
-    //                              list->capacity,
-    //                              prev_capacity,
-    //                              sizeof(int));
+    void* new_prev_ptr = my_recalloc(list->prev, list->capacity,
+                                     prev_capacity, sizeof(int));
 
-    // if (new_next == NULL) {
+    if (new_prev_ptr == NULL) {
 
-    //     error_report(CANNOT_ALLOCATE_MEM);
-    //     return -1;
-    // }
+        error_report(CANNOT_ALLOCATE_MEM);
+        return -1;
+    }
+    else
+        list->prev = (int*)new_prev_ptr;
 
-//     int is_ok = list_validator(list);
-//     if (is_ok == 0)
-//         return -1;
+    update_list_pointers_values(list);
 
-//     return 0;
-// }
+    int ret = list_prepare_after_increase(list, prev_capacity);
+    if (ret == -1)
+        return -1;
+
+    #ifdef LIST_HASH
+
+        ret = list_save_hash(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
+
+    int is_ok = list_validator(list);
+    if (is_ok == 0)
+        return -1;
+
+    return 0;
+}
+
+//===================================================================
+
+static int _list_prepare_after_increase(struct List* list, size_t prev_capacity, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    list->free = list->size + 1;
+
+    for (unsigned counter = (unsigned)prev_capacity; 
+                  counter < (unsigned)list->capacity; 
+                  counter ++) {
+
+        if (counter != list->capacity - 1)
+            list->next[counter] = (int)(counter + 1);
+        else 
+            list->next[counter] = 0;
+
+        list->prev[counter] = -1;
+    }
+
+    return 0;
+}
 
 //===================================================================
 
@@ -1426,7 +1493,7 @@ static int _list_push_check(struct List* list, unsigned int index,
         return 0;
     }
 
-    if (list->size == list->capacity - 1) {
+    if (list->size == List_max_capacity - 1) {
 
         error_report(LIST_OVERFLOW);
         return 0;
@@ -1450,6 +1517,13 @@ int _list_push_after_index(struct List* list, unsigned int index,
     is_ok = list_push_check(list, index);
     if (is_ok == 0)
         return -1;
+
+    if (list->size == list->capacity - 1) {
+
+        int ret = list_increase(list);
+        if (ret == -1)
+            return -1;
+    }
 
     int free = list_get_free(list);
 
@@ -1564,6 +1638,15 @@ elem_t _list_pop_by_index(struct List* list, unsigned int index,
         return -1;
     }
 
+    if (list->is_linearized == 1
+    && list->head == 1
+    && list->size * 4 < list->capacity) {
+
+        int ret = list_decrease(list);
+        if (ret == -1)
+            return -1;
+    }
+
     is_ok = list_pop_check(list, index);
     if (is_ok == 0) {
 
@@ -1584,11 +1667,12 @@ elem_t _list_pop_by_index(struct List* list, unsigned int index,
     if (index != list->tail && index != list->head)
         list->is_linearized = 0;
 
-    //int prev = get_prev_element_index(list, index);
     int prev = list->prev[index];
+    if (prev == -1)  {
 
-    if (prev == -1) //вынести в проверкуб заменить на prev
+        error_report(LIST_EMPTY_INDEX);
         return -1;
+    }
 
     elem_t value = list->data[index];
 
@@ -1646,12 +1730,6 @@ int _list_push_back(struct List* list, elem_t value, LOG_PARAMS) {
     int is_ok = list_validator(list);
     if (is_ok == 0)
         return -1;
-
-    if (list->size == List_capacity - 1) {
-
-        error_report(LIST_OVERFLOW);
-        return -1;
-    }
 
     int ret = list_push_after_index(list, list->tail, value);
     if (ret == -1)
@@ -1722,8 +1800,9 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
 
     if (list->size == list->capacity - 1) {
 
-        error_report(LIST_OVERFLOW);
-        return -1;
+        int ret = list_increase(list);
+        if (ret == -1)
+            return -1;
     }
 
     int free = list_get_free(list);

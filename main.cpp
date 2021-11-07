@@ -56,8 +56,27 @@ int main(int argc, char* argv[]) {
 
     err_val = list_push_front(&list, 32);$
     err_val = list_push_front(&list, 31);$
+        
+    list_draw_graph(&list);$
+    //system(" dot list_graph.txt -Tpng -O");
 
     err_val = list_linearize(&list); $
+
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
+    list_pop_back(&list, &err_val);
 
     err_val = list_dtor(&list);$
     err_val = list_ctor(&list);$
@@ -67,9 +86,6 @@ int main(int argc, char* argv[]) {
     fflush(logs_file);
 
     //list_linearize
-
-    list_draw_graph(&list);$
-    system(" dot list_graph.txt -Tpng -O");
 
     err_val = list_dtor(&list); $
     err_val = close_log_file(); $
