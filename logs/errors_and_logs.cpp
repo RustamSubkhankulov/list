@@ -23,6 +23,8 @@ int _error_report(int error_code, LOG_PARAMS) {
                     " see logs to get more information about"
                                     " programm performing\n");
 
+    fprintf(logs_file, "\n<pre>\n");
+
     fprintf(logs_file, "\n ACHTUNG!!\n");
 
     fprintf(logs_file, "\nAn error occured, my condolences((\n\n");
@@ -32,6 +34,8 @@ int _error_report(int error_code, LOG_PARAMS) {
     fprintf(logs_file, "Line: %d\n", line);
 
     fprintf(logs_file, "%s\n\n", get_error_descr(error_code));
+
+    fprintf(logs_file, "\n</pre>\n");
 
     return 0;
 }
@@ -55,13 +59,6 @@ FILE* open_log_file(const char* filename) {
 
     if (filename == NULL)
         return NULL;
-
-    // char buf[LOG_FILE_DIR_BUF_SIZE] = { 0 };
-
-    // strcpy(buf, LOG_DIR);
-    // strcat(buf, filename);
-
-    // printf("\n %s \n", buf);
 
     FILE* temp_ptr = fopen(filename, "a");
 
@@ -114,9 +111,13 @@ int _log_report(LOG_PARAMS, const char* mother_func) {
     if (log_report_parameters_check(LOGS_ARGS_USE) == 0)
         return -1;
 
+    fprintf(logs_file, "\n<pre>\n");
+
     int value = fprintf(logs_file, "Funtion: %s\n Called from: function: %s, file: %s."
                                       " Current line: %d.\n\n", mother_func, func_name, 
                                                                       file_name, line);
+
+    fprintf(logs_file, "\n</pre>\n");
 
     if (value < 0) 
         error_report(FILE_OUTPUT_ERROR);
@@ -131,8 +132,12 @@ int _smpl_log_report(LOG_PARAMS) {
     if (log_report_parameters_check(LOGS_ARGS_USE) == 0)
         return -1;
 
+    fprintf(logs_file, "\n<pre>\n");
+
     int value = fprintf(logs_file, "Function: %s, file: %s, line: %d \n \n",
                                                 func_name, file_name, line);
+
+    fprintf(logs_file, "\n</pre>\n");
 
     if (value < 0) 
         error_report(FILE_OUTPUT_ERROR);

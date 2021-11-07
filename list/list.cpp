@@ -77,7 +77,7 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     list_log_report();
     LIST_POINTER_CHECK(list);
 
-    FILE* graph = fopen("list_graph.txt", "wb");
+    FILE* graph = fopen("text_files/list_graph.txt", "wb");
 
     fprintf(graph, "digraph G{\n");
     fprintf(graph, "rankdir=HR;\n");
@@ -85,33 +85,54 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
-        fprintf(graph, "ELEMENT%u [shape=none, margin=0, label=<\n", counter);
-        fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");
+        fprintf(graph, "ELEMENT%u [shape=none, margin=0, style=rounded, label=<\n", counter);
+        fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");      
         fprintf(graph, "<TR><TD COLSPAN=\"3\" BGCOLOR=\"lightgrey\"> INDEX = %u </TD></TR>\n", counter);
+
+        if (counter == list->tail)
+            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b>TAIL OF LIST</b> </TD></TR>\n");
+
+        if (counter == list->head)
+            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b>HEAD OF LIST</b> </TD></TR>\n");
+
+        if (list->prev[counter] == -1)
+            fprintf(graph, "<TR><TD COLSPAN=\"3\"> <b> FREE ELEMENT </b> </TD></TR>\n"); 
+
         fprintf(graph, "<TR><TD PORT=\"prev\"> PREV = %d</TD>\n", list->prev[counter]);
         fprintf(graph, "<TD PORT=\"data\"> DATA = %d </TD>\n", list->data[counter]);
         fprintf(graph, "<TD PORT=\"next\"> NEXT = %d</TD></TR></TABLE>>];\n", list->next[counter]);
+
+        if (counter != list->capacity -  1)
+            fprintf(graph, "ELEMENT%u -> ELEMENT%u [color = \"white\"];\n", counter, counter + 1);
         
         if (list->next[counter] != 0 && list->prev[counter] != -1)
             fprintf(graph, "ELEMENT%u:<next> -> ELEMENT%d:<prev>;\n", counter, list->next[counter]);
     }
     fprintf(graph, "}\n");
 
-    fprintf(graph, "{rank = same; ELEMENT0;\n");
-    fprintf(graph, "LIST [shape=none, margin=0, label=<\n");
-    fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");
-    fprintf(graph, "<TR><TD PORT=\"head\"> HEAD %u </TD></TR>\n", list->head);
-    fprintf(graph, "<TR><TD PORT=\"tail\"> TAIL %u </TD></TR>\n", list->tail);
-    fprintf(graph, "<TR><TD PORT=\"free\"> FREE %u </TD>/TR></TABLE>>];\n}\n", list->free);
+    // fprintf(graph, "{rank = same; ELEMENT%lu;\n", list->capacity/2);
+    // fprintf(graph, "LIST [shape=none, margin=0, label=<\n");
+    // fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");
+    // fprintf(graph, "<TR><TD PORT=\"head\"> HEAD %u </TD></TR>\n", list->head);
+    // fprintf(graph, "<TR><TD PORT=\"tail\"> TAIL %u </TD></TR>\n", list->tail);
+    // fprintf(graph, "<TR><TD PORT=\"free\"> FREE %u </TD></TR></TABLE>>];\n}\n", list->free);
 
-    fprintf(graph, "LIST:<tail> -> ELEMENT%u;\n", list->tail);
-    fprintf(graph, "LIST:<head> -> ELEMENT%u;\n", list->head);
-    fprintf(graph, "LIST:<free> -> ELEMENT%u;\n", list->free);
+    // fprintf(graph, "LIST:<tail> -> ELEMENT%u;\n", list->tail);
+    // fprintf(graph, "LIST:<head> -> ELEMENT%u;\n", list->head);
+    // fprintf(graph, "LIST:<free> -> ELEMENT%u;\n", list->free);
 
     fprintf(graph, "}\n");
     fclose(graph);
 
-    int ret = system("dot list_graph.txt -Tpng -o images/list.png");
+    char buffer[100] = { 0 };
+    sprintf(buffer, "dot text_files/list_graph.txt -Tpng -o images/list_graph%d.png", Graph_counter);
+    system(buffer);
+
+    system("rm text_files/list_graph.txt");
+
+    fprintf(logs_file, "\n <img src = ../images/list_graph%d.png", Graph_counter);
+
+    //system("dot list_graph.txt -Tpng -o images/list.png");
     //printf("\n\n system return %d\n\n", ret);
     //system("rm list_graph.txt");
 
@@ -1143,6 +1164,8 @@ static int _list_out(struct List* list, FILE* output, LOG_PARAMS) {
     if (list->data == NULL || list->next == NULL)
         return -1;
 
+    fprintf(output, "\n<pre>\n");
+
     fprintf(output, "_________");
 
     for (unsigned counter  = 0; counter < list->capacity; counter ++) {
@@ -1254,6 +1277,8 @@ static int _list_out(struct List* list, FILE* output, LOG_PARAMS) {
     }
     fprintf(output, "|\n"); 
 
+    fprintf(output, "\n</pre>\n");
+
     return 0;
 }
 
@@ -1269,6 +1294,8 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
         error_report(INV_FILE_PTR);
         return -1;
     }
+
+    fprintf(output, "\n<pre>\n");
 
     fprintf(output, "Singly linked list structure. Type: %s. Address: <%p>\n", 
                                                           TYPE_NAME, list);
@@ -1318,11 +1345,15 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
     if (list->prev[list->free] != -1)
         fprintf(output, "Prev for list->free is not -1");
 
-    fprintf(output, "\n");
+    fprintf(output, "\n</pre>\n");
 
 
     int ret = list_out(list, output);
     if (ret == -1)            
+        return -1;
+
+    ret = list_draw_graph(list);
+    if (ret == -1)
         return -1;
 
     return 0;
