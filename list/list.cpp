@@ -1542,6 +1542,41 @@ int _list_push_before_index(struct List* list, unsigned int index,
 
     if (index == list->head && (unsigned)free > list->head) 
         list->is_linearized = 0; 
+
+    list->data[free] = value;
+
+    if (index != list->head 
+    || (index == list->head && free > (int)list->head))
+
+        list->is_linearized = 0;
+
+    list->data[free] = value;
+    list->next[free] = (int)index;
+    list->prev[free] = list->prev[index];
+
+    if (list->prev[index] != 0)
+        list->next[list->prev[index]] = free;
+    
+    list->prev[index] = free;
+
+    if (list->prev[free] == 0) 
+        list->head = (unsigned)free;
+
+    list->size++;
+
+    #ifdef LIST_HASH
+
+        int ret = list_save_hash(list);
+        if (ret == 0)
+            return -1;
+
+    #endif
+
+    is_ok = list_validator(list);
+    if (is_ok == 0)
+        return -1;
+
+    return free;
 }
 
 //===================================================================
@@ -1582,15 +1617,13 @@ int _list_push_after_index(struct List* list, unsigned int index,
         list->is_linearized = 0;
 
     list->data[free] = value;
-
+    list->prev[free] = (int)index;
     list->next[free] = list->next[index];
 
     if (list->next[index] != 0)
         list->prev[list->next[index]] = free;
     
     list->next[index] = free;
-
-    list->prev[free] = (int)index;
 
     if (list->next[free] == 0) 
         list->tail = (unsigned)free;

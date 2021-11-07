@@ -60,7 +60,7 @@ FILE* open_log_file(const char* filename) {
     if (filename == NULL)
         return NULL;
 
-    FILE* logs_file = fopen(filename, "a");
+    FILE* logs_file = fopen(filename, "wb");
 
     if (logs_file == NULL) {
 
