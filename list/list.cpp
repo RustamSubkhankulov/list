@@ -16,6 +16,7 @@ static void* List_prev_ptr = NULL;
 
 //===================================================================
 
+//Counter for graphes, drawn by GraphViz (for logs)
 static int Graph_counter = 0;
 
 //===================================================================
@@ -28,47 +29,50 @@ static int Graph_counter = 0;
 
 #endif
 
-static int _list_clear_check(struct List* list, LOG_PARAMS);
-
-static int _list_poison_check(struct List* list, LOG_PARAMS);
-
-static int _list_poisoning(struct List* list, LOG_PARAMS);
+//===================================================================
 
 static int _list_set_zero(struct List* list, LOG_PARAMS);
 
-static int _update_list_pointers_values(struct List* list, LOG_PARAMS);
+static int _list_poisoning(struct List* list, LOG_PARAMS);
 
-static int _list_pointers_values_check(struct List* list, LOG_PARAMS);
+static int _list_get_free(struct  List* list, LOG_PARAMS);
 
-static int _list_set_prev_to_minus_one(struct List* list, LOG_PARAMS);
+static int _list_clear_check(struct List* list, LOG_PARAMS);
+
+static int _list_free_memory(struct List* list, LOG_PARAMS);
+
+
+static int _list_poison_check(struct List* list, LOG_PARAMS);
 
 static int _list_allocate_memory(struct List* list, LOG_PARAMS);
 
-static int _list_free_memory(struct List* list, LOG_PARAMS);
+static int _list_check_connections(struct List* list, LOG_PARAMS);
 
 static int _list_set_next_in_order(struct List* list, LOG_PARAMS);
 
 static int _list_out(struct List* list, FILE* output, LOG_PARAMS);
 
-static int _list_push_first(struct List* list, elem_t value, int free, 
-                                                           LOG_PARAMS);
-
-static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS);    
-
-static int _list_get_free(struct  List* list, LOG_PARAMS);
-
+static int _list_pop_check(struct List* list, unsigned int index,
+                                                      LOG_PARAMS);
+                                                      
 static int _list_push_check(struct List* list, unsigned int index,  
                                                        LOG_PARAMS);
 
-static int _list_pop_check(struct List* list, unsigned int index,
-                                                      LOG_PARAMS);
-
-static int _list_check_connections(struct List* list, LOG_PARAMS);
-
 static int _list_check_free_elements(struct List* list, LOG_PARAMS);
 
-static int _list_prepare_after_increase(struct List* list,size_t prev_capacity, 
-                                                                   LOG_PARAMS);
+static elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS);  
+
+static int _list_pointers_values_check(struct List* list, LOG_PARAMS);
+
+static int _list_set_prev_to_minus_one(struct List* list, LOG_PARAMS);
+
+static int _update_list_pointers_values(struct List* list, LOG_PARAMS);
+
+static int _list_push_first(struct List* list, elem_t value, int free, 
+                                                           LOG_PARAMS);   
+
+static int _list_prepare_after_increase(struct List* list, size_t prev_capacity, 
+                                                                    LOG_PARAMS);
 
 //===================================================================
 
@@ -85,56 +89,60 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
-        fprintf(graph, "ELEMENT%u [shape=none, margin=0, style=rounded, label=<\n", counter);
-        fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");      
-        fprintf(graph, "<TR><TD COLSPAN=\"3\" BGCOLOR=\"lightgrey\"> INDEX = %u </TD></TR>\n", counter);
+        fprintf(graph, "ELEMENT%u [shape=none, margin=0, style=rounded,"
+                                                " label=<\n", counter);
+
+        fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" "
+                                                        "CELLPADDING=\"4\">\n"); 
+
+        fprintf(graph, "<TR><TD COLSPAN=\"3\" BGCOLOR=\"lightgrey\"> INDEX = %u"
+                                                      " </TD></TR>\n", counter);
 
         if (counter == list->tail)
-            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b>TAIL OF LIST</b> </TD></TR>\n");
+            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b>TAIL OF LIST"
+                                                "</b> </TD></TR>\n");
 
         if (counter == list->head)
-            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b>HEAD OF LIST</b> </TD></TR>\n");
+            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b>HEAD OF LIST"
+                                                "</b> </TD></TR>\n");
 
         if (list->prev[counter] == -1)
-            fprintf(graph, "<TR><TD COLSPAN=\"3\"> <b> FREE ELEMENT </b> </TD></TR>\n"); 
+            fprintf(graph, "<TR><TD COLSPAN=\"3\"> <b> FREE ELEMENT "
+                                                "</b> </TD></TR>\n"); 
 
-        fprintf(graph, "<TR><TD PORT=\"prev\"> PREV = %d</TD>\n", list->prev[counter]);
-        fprintf(graph, "<TD PORT=\"data\"> DATA = %d </TD>\n", list->data[counter]);
-        fprintf(graph, "<TD PORT=\"next\"> NEXT = %d</TD></TR></TABLE>>];\n", list->next[counter]);
+        fprintf(graph, "<TR><TD PORT=\"prev\"> PREV = %d</TD>\n",
+                                             list->prev[counter]);
+
+        fprintf(graph, "<TD PORT=\"data\"> DATA = %d </TD>\n", 
+                                         list->data[counter]);
+
+        fprintf(graph, "<TD PORT=\"next\"> NEXT = %d</TD></TR></TABLE>>];\n", 
+                                                        list->next[counter]);
 
         if (counter != list->capacity -  1)
-            fprintf(graph, "ELEMENT%u -> ELEMENT%u [color = \"white\"];\n", counter, counter + 1);
+            fprintf(graph, "ELEMENT%u -> ELEMENT%u [color = \"white\"];\n", counter, 
+                                                                            counter + 1);
         
         if (list->next[counter] != 0 && list->prev[counter] != -1)
-            fprintf(graph, "ELEMENT%u:<next> -> ELEMENT%d:<prev>;\n", counter, list->next[counter]);
+            fprintf(graph, "ELEMENT%u:<next> -> ELEMENT%d:<prev>;\n", counter, 
+                                                           list->next[counter]);
     }
-    fprintf(graph, "}\n");
-
-    // fprintf(graph, "{rank = same; ELEMENT%lu;\n", list->capacity/2);
-    // fprintf(graph, "LIST [shape=none, margin=0, label=<\n");
-    // fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n");
-    // fprintf(graph, "<TR><TD PORT=\"head\"> HEAD %u </TD></TR>\n", list->head);
-    // fprintf(graph, "<TR><TD PORT=\"tail\"> TAIL %u </TD></TR>\n", list->tail);
-    // fprintf(graph, "<TR><TD PORT=\"free\"> FREE %u </TD></TR></TABLE>>];\n}\n", list->free);
-
-    // fprintf(graph, "LIST:<tail> -> ELEMENT%u;\n", list->tail);
-    // fprintf(graph, "LIST:<head> -> ELEMENT%u;\n", list->head);
-    // fprintf(graph, "LIST:<free> -> ELEMENT%u;\n", list->free);
 
     fprintf(graph, "}\n");
+    fprintf(graph, "}\n");
+
     fclose(graph);
 
-    char buffer[100] = { 0 };
-    sprintf(buffer, "dot text_files/list_graph.txt -Tpng -o images/list_graph%d.png", Graph_counter);
-    system(buffer);
+    char command_buffer[100] = { 0 };
+    sprintf(command_buffer, "dot text_files/list_graph.txt -Tpng"
+                    " -o images/list_graph%d.png", Graph_counter);
+
+    system(command_buffer);
 
     system("rm text_files/list_graph.txt");
 
-    fprintf(logs_file, "\n <img src = ../images/list_graph%d.png", Graph_counter);
-
-    //system("dot list_graph.txt -Tpng -o images/list.png");
-    //printf("\n\n system return %d\n\n", ret);
-    //system("rm list_graph.txt");
+    fprintf(logs_file, "\n <img src = ../images/list_graph%d.png", 
+                                                    Graph_counter);
 
     Graph_counter++;
 
@@ -390,62 +398,7 @@ static int _list_prepare_after_increase(struct List* list, size_t prev_capacity,
     }
 
     return 0;
-}
-
-//===================================================================
-
-// static int _list_resize(struct List* list, LOG_PARAMS) {
-
-//     list_log_report();
-//     LIST_POINTER_CHECK(list);
-
-//     if (list->size + 1 == list->capacity) {
-
-//         int ret = list_increase(list);
-//         if (ret == -1)
-//             return -1;
-//     }
-
-//     if (list->size < (list->capacity / 4)
-//      && list->capacity > List_capacity) {
-
-//         int ret = list_decrease(list);
-//         if (ret == -1)
-//             return -1;
-//     }
-
-//     int is_ok = list_validator(list);
-//     if (is_ok == 0)
-//         return -1;
-
-//     return 0;
-// } 
-
-//===================================================================
-
-// static int list_swap(struct List* list, unsigned int first, unsigned int second) {
-
-//     my_swap(&list->data[first], &list->data[second], sizeof(elem_t));
-//     my_swap(&list->next[first], &list->next[second], sizeof(int));
-//     my_swap(&list->prev[first], &list->prev[second], sizeof(int));
-
-//     if (list->head == first) 
-//         list->head = second;
-//     else if (list->head == second)
-//         list->head = first;
-
-//     if (list->tail == first)
-//         list->tail = second;
-//     else if (list->tail == second)
-//         list->tail = first;
-
-//     if (list->free == first)
-//         list->free = second;
-//     else if (list->free == second)
-//         list->free = first;
-
-//     return 0;
-// }
+} 
 
 //===================================================================
 
@@ -487,25 +440,6 @@ elem_t _list_get_by_logical_number(struct List* list, int number, int* err,
         return list->data[index];
     }
 }
-
-//===================================================================
-
-// static int _list_next_compare(struct List* list, unsigned int first, unsigned int second) {
-
-//     if (list->prev[first] == -1)
-//         return 1;
-
-//     if (list->prev[second] == -1)
-//         return 0;
-
-//     if (list->next[first] == 0)
-//         return 1;
-
-//     else if (list->next[first] > list->next[second] && list->next[second] != 0)
-//         return 1;
-
-//     return 0;
-// }
 
 //===================================================================
 
@@ -1311,12 +1245,14 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
     if (list->data == NULL)
         fprintf(output, "ERROR: NULL data array\n");
 
-    fprintf(output, "Next element indexes array address: <%p>\n", list->next);
+    fprintf(output, "Next element indexes array address: <%p>\n", 
+                                                     list->next);
         
     if (list->next == NULL)    
         fprintf(output, "ERROR: NULL next index array\n");
 
-    fprintf(output, "Previous element indexes array address: <%p>\n", list->prev);
+    fprintf(output, "Previous element indexes array address: <%p>\n", 
+                                                         list->prev);
 
     if (list->prev == NULL)
         fprintf(output, "ERROR: NULL previous index array\n");
@@ -1340,10 +1276,10 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
 
     if (list->free > list->capacity - 1)
         fprintf(output, "ERRROR: invalid list->free");
-        
 
     if (list->prev[list->free] != -1)
-        fprintf(output, "Prev for list->free is not -1");
+        fprintf(output, "Prev for list->free is not -1. "
+                        "No free elements left in list.\n");
 
     fprintf(output, "\n</pre>\n");
 
@@ -1512,7 +1448,7 @@ static int _list_push_check(struct List* list, unsigned int index,
         return 0;
     }
 
-    if (list->next[index] == -1) { //убрать
+    if (list->prev[index] == -1) { //убрать
 
         error_report(LIST_EMPTY_INDEX);
         return 0;

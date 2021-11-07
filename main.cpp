@@ -56,9 +56,6 @@ int main(int argc, char* argv[]) {
 
     err_val = list_push_front(&list, 32);$
     err_val = list_push_front(&list, 31);$
-        
-    list_draw_graph(&list);$
-    //system(" dot list_graph.txt -Tpng -O");
 
     err_val = list_linearize(&list); $
 
@@ -84,8 +81,6 @@ int main(int argc, char* argv[]) {
     list_linearize(&list);$
 
     fflush(logs_file);
-
-    //list_linearize
 
     err_val = list_dtor(&list); $
     err_val = close_log_file(); $

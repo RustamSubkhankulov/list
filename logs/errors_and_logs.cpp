@@ -60,16 +60,16 @@ FILE* open_log_file(const char* filename) {
     if (filename == NULL)
         return NULL;
 
-    FILE* temp_ptr = fopen(filename, "a");
+    FILE* logs_file = fopen(filename, "a");
 
-    if (temp_ptr == NULL) {
+    if (logs_file == NULL) {
 
         fprintf(stderr, "Could not open log file\n");
         return NULL;
     }
 
     else 
-        return temp_ptr;
+        return logs_file;
 }
 
 //===================================================
