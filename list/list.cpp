@@ -80,12 +80,11 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     list_log_report();
     LIST_POINTER_CHECK(list);
 
-    FILE* graph = fopen("text_files/list_graph.txt", "wb");
+    FILE* graph = fopen(TEMP_DIR "list_graph.txt", "wb");
 
     fprintf(graph, "digraph G{\n");
     fprintf(graph, "rankdir=HR;\n");
     fprintf(graph, "{rank = same; \n");
-    fprintf(graph, "splines = ortho;\n");
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
@@ -131,17 +130,16 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     fprintf(graph, "}\n}\n");
     fclose(graph);
 
-    char command_buffer[100] = { 0 };
-    sprintf(command_buffer, "dot text_files/list_graph.txt -Tpng"
-                    " -o images/list_graph%d.png", Graph_counter);
+    char command_buffer[SYSTEM_COMMAND_BUF_SIZE] = { 0 };
+    sprintf(command_buffer, "dot " TEMP_DIR "list_graph.txt -Tpng"
+                    " -o " TEMP_DIR "list_images/list_graph%d.png", Graph_counter);
 
-    system(command_buffer);
+    int ret = system(command_buffer);
+    printf("\n\n system ret %d\n\n", ret);
 
-    system("rm text_files/list_graph.txt");
-
-    fprintf(logs_file, "\n <img src = ../images/list_graph%d.png "
-                            "alt = \"List graph has not found\">\n\n", 
-                                                    Graph_counter);
+    fprintf(logs_file, "\n <img src = list_images/list_graph%d.png "
+                                     "alt = \"List graph has not found\">\n\n", 
+                                                                Graph_counter);
 
     Graph_counter++;
 
@@ -1217,8 +1215,8 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
                                      "border: 2px solid black;\">"
                                      "<b>Double linked list structure.</b></caption>");
 
-    fprintf(output, "<tr><td>\nType</td><td> %s.</td></tr>"); 
-    fprintf(output, "<tr><td>Address</td><td> <%p></td></tr>\n", TYPE_NAME, list);
+    fprintf(output, "<tr><td>\nType</td><td> %s.</td></tr>", TYPE_NAME); 
+    fprintf(output, "<tr><td>Address</td><td> <%p></td></tr>\n", list);
 
     fprintf(output, "<tr><td>List linerized</td><td> %d </td></tr>\n",list->is_linearized);
 

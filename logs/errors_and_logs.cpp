@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "errors_and_logs.h"
+#include "../list/list_config.h"
 
 //===================================================
 
@@ -60,7 +61,10 @@ FILE* open_log_file(const char* filename) {
     if (filename == NULL)
         return NULL;
 
-    FILE* logs_file = fopen(filename, "wb");
+    char directory_name[DIR_NAME_SIZE];
+    sprintf(directory_name, "%s%s", TEMP_DIR, filename);
+
+    FILE* logs_file = fopen(directory_name, "wb");
 
     if (logs_file == NULL) {
 

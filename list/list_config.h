@@ -2,6 +2,12 @@
 
 #include <cstddef>
 
+#define TEMP_DIR "/mnt/c/users/rust2/appdata/local/temp/"
+
+#define DIR_NAME_SIZE 100
+
+#define SYSTEM_COMMAND_BUF_SIZE 200
+
 //===================================================================
 
 //LIST PARAMETERS
