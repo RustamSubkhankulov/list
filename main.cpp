@@ -15,35 +15,14 @@ int main(int argc, char* argv[]) {
     int err_val = 0;
 
     struct List list = { 0 };
+
+    // int is_ok = list_unit_tests(&list);
+    // if (is_ok == -1)
+    //     return -1;
+
     err_val = list_ctor(&list); $
 
-    err_val = list_push_back(&list, 10); $
-    err_val = list_push_back(&list, 20); $
-    err_val = list_push_back(&list, 29); $
-    err_val = list_push_back(&list, 40); $
-    err_val = list_push_back(&list, 50); $
-    err_val = list_push_back(&list, 60); $
-    err_val = list_push_back(&list, 70); $
-    err_val = list_push_back(&list, 80); $
-
-    list_pop_by_index(&list, 7, &err_val); $
-    list_pop_by_index(&list, 3, &err_val); $
-
-    err_val = list_push_back(&list, 150); $
-    err_val = list_push_front(&list, 5); $
-
-    list_pop_by_index(&list, 5, &err_val); $
-
-    err_val = list_linearize(&list); $
-
-
-    err_val = list_push_back(&list, 160); $
-
-    err_val = list_push_after_index(&list, 8, 170);$
-
-    list_pop_front(&list, &err_val);$
-    list_pop_front(&list, &err_val);$
-    list_pop_front(&list, &err_val);$
+    //list_pop_back(&list, &err_val); $
 
     err_val = list_push_front(&list, 39);$
     err_val = list_push_front(&list, 38);$
@@ -56,27 +35,6 @@ int main(int argc, char* argv[]) {
 
     err_val = list_push_front(&list, 32);$
     err_val = list_push_front(&list, 31);$
-
-    err_val = list_linearize(&list); $
-
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-    list_pop_back(&list, &err_val);
-
-    err_val = list_dtor(&list);$
-    err_val = list_ctor(&list);$
 
     list_linearize(&list);$
 

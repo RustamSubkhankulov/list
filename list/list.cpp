@@ -85,6 +85,7 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     fprintf(graph, "digraph G{\n");
     fprintf(graph, "rankdir=HR;\n");
     fprintf(graph, "{rank = same; \n");
+    fprintf(graph, "splines = ortho;\n");
 
     for (unsigned int counter = 0; counter < list->capacity; counter++) {
 
@@ -139,7 +140,7 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
     system("rm text_files/list_graph.txt");
 
     fprintf(logs_file, "\n <img src = ../images/list_graph%d.png "
-                            "alt = \"List graph has not found\"\n", 
+                            "alt = \"List graph has not found\">\n\n", 
                                                     Graph_counter);
 
     Graph_counter++;
@@ -913,9 +914,11 @@ int _list_ctor(struct List* list, LOG_PARAMS) {
     int is_poison = list_poison_check(list);
     int is_clear = list_clear_check(list);
 
-    if (is_clear == 0 && is_poison == 0)
+    if (is_clear == 0 && is_poison == 0) {
+        
         error_report(LIST_UNPREPARED);
-
+        return -1;
+    }
     if (is_poison == 1) {
 
         int ret = list_set_zero(list);
@@ -1129,120 +1132,65 @@ static int _list_out(struct List* list, FILE* output, LOG_PARAMS) {
     if (list->data == NULL || list->next == NULL)
         return -1;
 
-    fprintf(output, "\n<pre>\n");
+    fprintf(output, "<style> td\n { padding: 7px;"
+                                  " border: 1px solid black;"
+                                  " border-collapse: collapse;}\n</style>");
 
-    fprintf(output, "_________");
+    fprintf(output, "<table width = \" 100%% \" "
+                           "cellspacing=\"0\" "
+                           "cellpadding=\"4\" "
+                           "border = \"5\" "
+                           "style = \" "
+                           "padding: 15px; "
+                           "background-color: lightgrey;>\"\n");
 
-    for (unsigned counter  = 0; counter < list->capacity; counter ++) {
-
-        fprintf(output, "______");
-    }
-    fprintf(output, "\n");
-
-    fprintf(output, "|       ");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|     ");
-    }
-    fprintf(output, "|\n");
-
-    fprintf(output, "| Index ");
+    fprintf(output, "<tr><td><b>Index</b></td>");
 
     for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|%3u  ", counter);
+        
+        if (list->prev[counter] == -1)
+            fprintf(output, "<td><u><b> %u </b></u></td>", counter);
+        else 
+            fprintf(output, "<td><b> %u </b></td>", counter);
     }
-    fprintf(output, "|\n");
+    fprintf(output, "</tr>");
 
-    fprintf(output, "|_______");
+    fprintf(output, "<tr><td><b>Data</b></td>");
 
     for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|_____");
+        
+        if (list->prev[counter] == -1)
+            fprintf(output, "<td><u>" ELEM_SPEC "</u></td>", list->data[counter]);
+        else
+            fprintf(output, "<td>" ELEM_SPEC "</td>", list->data[counter]);
     }
-    fprintf(output, "|\n");
 
-//=========================================================
+    fprintf(output, "</tr>");
 
-
-    fprintf(output, "|       ");
+    fprintf(output, "<tr><td><b>Next</b></td>");
 
     for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|     ");
+        
+        if (list->prev[counter] == -1)
+            fprintf(output, "<td><u> %d </u></td>", list->next[counter]);
+        else
+            fprintf(output, "<td> %d </td>", list->next[counter]);
     }
-    fprintf(output, "|\n");
 
-    fprintf(output, "| Data  ");
+    fprintf(output, "</tr>");
+
+    fprintf(output, "<tr><td><b>Prev</b></td>");
 
     for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|%3d  ", list->data[counter]);
+        
+        if (list->prev[counter] == -1)
+            fprintf(output, "<td><u> %d </u></td>", list->prev[counter]);
+        else
+            fprintf(output, "<td> %d </td>", list->prev[counter]);
     }
-    fprintf(output, "|\n");
+    fprintf(output, "</tr>");
 
-    fprintf(output, "|_______");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|_____");
-    }
-    fprintf(output, "|\n");    
-
-//=========================================================
-
-    fprintf(output, "|       ");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|     ");
-    }
-    fprintf(output, "|\n");
-
-    fprintf(output, "| Next  ");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|%3d  ", list->next[counter]);
-    }
-    fprintf(output, "|\n");
-    
-    fprintf(output, "|_______");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|_____");
-    }
-    fprintf(output, "|\n");
-
-    //=====================================================
-
-    fprintf(output, "|       ");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|     ");
-    }
-    fprintf(output, "|\n");
-
-    fprintf(output, "| Prev  ");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|%3d  ", list->prev[counter]);
-    }
-    fprintf(output, "|\n");
-
-    fprintf(output, "|_______");
-
-    for (unsigned counter = 0; counter < list->capacity; counter++) {
-
-        fprintf(output, "|_____");
-    }
-    fprintf(output, "|\n"); 
-
-    fprintf(output, "\n</pre>\n");
+    fprintf(output, "</table>");
 
     return 0;
 }
@@ -1260,50 +1208,58 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
         return -1;
     }
 
-    fprintf(output, "\n<pre>\n");
+    fprintf(output, "\n <table style = \"border-collapse: collapse; "
+                                        "border: 3px solid black\" "
+                                        "class = \"table\">\n");
 
-    fprintf(output, "Singly linked list structure. Type: %s. Address: <%p>\n", 
-                                                            TYPE_NAME, list);
+    fprintf(output, "<caption style=\"border-collapse: collapse; "
+                                     "background-color: lightgrey; "
+                                     "border: 2px solid black;\">"
+                                     "<b>Double linked list structure.</b></caption>");
 
-    fprintf(output, "List linerized: %d\n",list->is_linearized);
+    fprintf(output, "<tr><td>\nType</td><td> %s.</td></tr>"); 
+    fprintf(output, "<tr><td>Address</td><td> <%p></td></tr>\n", TYPE_NAME, list);
 
-    fprintf(output, "List capacity : %lu\n", list->capacity);
+    fprintf(output, "<tr><td>List linerized</td><td> %d </td></tr>\n",list->is_linearized);
 
-    fprintf(output, "List size: %u\n", list->size);
+    fprintf(output, "<tr><td>List capacity</td><td>%lu</td></tr>\n", list->capacity);
 
-    fprintf(output, "Data array address: <%p>\n", list->data);
+    fprintf(output, "<tr><td>List size</td><td>%u</td></tr>\n", list->size);
+
+    fprintf(output, "<tr><td>Data array address</td><td><%p></td></tr>\n", list->data);
+
+    fprintf(output, "<tr><td>Next element indexes array address</td><td><%p></td></tr>\n", 
+                                                                              list->next);
+
+    fprintf(output, "<tr><td>Previous element indexes array address</td><td><%p></td></tr>\n", 
+                                                                                  list->prev);
+
+    fprintf(output, "<tr><td>Head element</td><td>%u</td></tr>\n", list->head);
+
+    fprintf(output, "<tr><td>Tail element</td><td>%u</td></tr>\n", list->tail);
+
+    fprintf(output, "<tr><td>First free element</td><td>%u</td></tr>\n", list->free);
+
+    fprintf(output, "\n</table>\n");
 
     if (list->data == NULL)
         fprintf(output, "ERROR: NULL data array\n");
-
-    fprintf(output, "Next element indexes array address: <%p>\n", 
-                                                     list->next);
         
     if (list->next == NULL)    
         fprintf(output, "ERROR: NULL next index array\n");
 
-    fprintf(output, "Previous element indexes array address: <%p>\n", 
-                                                         list->prev);
-
     if (list->prev == NULL)
         fprintf(output, "ERROR: NULL previous index array\n");
-
-    fprintf(output, "Head element: %u\n", list->head);
 
     if (list->head > list->capacity - 1 || (list->head == 0 && list->size != 0))
         fprintf(output, "ERROR: invalid head element\n");
 
-    fprintf(output, "Tail element: %u\n", list->tail);
-
     if (list->tail > list->capacity - 1 || (list->tail == 0 && list->size != 0))
-
         fprintf(output, "ERROR: invalid tail element\n");
 
     if (list->head == list->tail && list->size > 1)
         fprintf(output, "ERROR: Tail equal to head while "
                                 "size is mote than one\n");
-
-    fprintf(output, "First free element: %u\n", list->free);
 
     if (list->free > list->capacity - 1)
         fprintf(output, "ERRROR: invalid list->free");
@@ -1312,16 +1268,18 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
         fprintf(output, "Prev for list->free is not -1. "
                         "No free elements left in list.\n");
 
-    fprintf(output, "\n</pre>\n");
-
 
     int ret = list_out(list, output);
     if (ret == -1)            
         return -1;
 
-    ret = list_draw_graph(list);
-    if (ret == -1)
-        return -1;
+    #ifdef LIST_GRAPHVIZ
+
+        ret = list_draw_graph(list);
+        if (ret == -1)
+            return -1;
+
+    #endif
 
     return 0;
 }
@@ -1363,7 +1321,7 @@ static int _list_push_first(struct List* list, elem_t value, int free,
     if (is_ok == 0)
         return -1;
 
-    return 0;
+    return free;
 }
 
 //===================================================================
@@ -1491,12 +1449,6 @@ static int _list_push_check(struct List* list, unsigned int index,
         return 0;
     }
 
-    if (list->prev[index] == -1) {
-
-        error_report(LIST_EMPTY_INDEX);
-        return 0;
-    }
-
     if (list->size == List_max_capacity - 1) {
 
         error_report(LIST_OVERFLOW);
@@ -1567,7 +1519,7 @@ int _list_push_before_index(struct List* list, unsigned int index,
     #ifdef LIST_HASH
 
         int ret = list_save_hash(list);
-        if (ret == 0)
+        if (ret == -1)
             return -1;
 
     #endif
@@ -1912,3 +1864,899 @@ int _list_push_front(struct List* list, elem_t value, LOG_PARAMS) {
 }
 
 //===================================================================
+
+static int _list_pop_last_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int free = list_get_free(list);
+    if (free == -1)
+        return -1;
+
+    int err_val = 0;
+
+    elem_t value = 10;
+
+    int value_position = list_push_first(list, value, free);
+    if (value_position == -1)
+        return -1;
+
+    elem_t return_value = list_pop_last(list, &err_val);
+    if (err_val == -1)
+        return -1;
+
+    if (return_value != value) {
+
+        error_report(LIST_POP_LAST_TEST_FAILED);
+        error_report(LIST_POP_INV_RET_VALUE);
+        err_val++;
+    }
+
+    if (list->head != 0) {
+
+        error_report(LIST_POP_LAST_TEST_FAILED);
+        error_report(LIST_INV_HEAD);
+        err_val++;
+    }
+
+    if (list->tail != 0) {
+
+        error_report(LIST_POP_LAST_TEST_FAILED);
+        error_report(LIST_INV_TAIL);
+        err_val++;
+    }
+
+    if (list->size != 0) {
+
+        error_report(LIST_POP_LAST_TEST_FAILED);
+        error_report(LIST_INV_SIZE);
+        err_val++;
+    }
+
+    if (list->free != (unsigned)value_position) {
+
+        error_report(LIST_POP_LAST_TEST_FAILED);
+        error_report(LIST_INV_FREE);
+        err_val++;
+    }
+
+    if (list->prev[value_position] != -1) {
+
+        error_report(LIST_POP_LAST_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+    
+}
+
+//===================================================================
+
+static int _list_push_first_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int free = list_get_free(list);
+    if (free == -1)
+        return -1;
+
+    int err_val = 0;
+
+    elem_t value = 10;
+
+    int value_pos = list_push_first(list, value, free);
+    if (ret == -1)
+        return -1;
+
+    if (list->data[value_pos] != value) {
+
+        error_report(LIST_PUSH_FIRST_TEST_FAILED);
+        error_report(LIST_DATA_IS_EMPTY);
+        err_val++;
+    }
+
+    if (list->prev[value_pos] != 0) {
+
+        error_report(LIST_PUSH_FIRST_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (list->next[value_pos] != 0) {
+
+        error_report(LIST_PUSH_FIRST_TEST_FAILED);
+        error_report(LIST_INV_NEXT);
+        err_val++;
+    }
+
+    if (list->tail != (unsigned)value_pos) {
+
+        error_report(LIST_PUSH_FIRST_TEST_FAILED);
+        error_report(LIST_INV_TAIL);
+        err_val++;
+    }
+
+    if (list->head != (unsigned)value_pos) {
+
+        error_report(LIST_PUSH_FIRST_TEST_FAILED);
+        error_report(LIST_INV_HEAD);
+        err_val++;
+    }
+
+    if (list->size != 1) {
+
+        error_report(LIST_PUSH_FIRST_TEST_FAILED);
+        error_report(LIST_DATA_IS_EMPTY);
+        err_val++;
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_push_back_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    ret = list_push_back(list, 10);
+    if (ret == -1)
+        return -1;
+
+    int pos_prev = list_push_back(list, 20);
+    if (ret == -1)
+        return -1;
+
+    size_t prev_size = list->size;
+
+    elem_t value = 30;
+    int value_pos = list_push_back(list, value);
+
+    int err_val = 0;
+
+    if (list->tail != (unsigned)value_pos) {
+
+        error_report(LIST_PUSH_BACK_TEST_FAILED);
+        error_report(LIST_INV_TAIL);
+        err_val++;
+    }
+
+    if (list->data[value_pos] != value) {
+
+        error_report(LIST_PUSH_BACK_TEST_FAILED);
+        error_report(LIST_INV_DATA);
+        err_val++;
+    }
+
+    if (list->prev[value_pos] != pos_prev) {
+
+        error_report(LIST_PUSH_BACK_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (list->next[value_pos] != 0) {
+
+        error_report(LIST_PUSH_BACK_TEST_FAILED);
+        error_report(LIST_INV_TAIL_NEXT);
+        err_val++;
+    }
+
+    if (list->size != prev_size + 1) {
+
+        error_report(LIST_PUSH_BACK_TEST_FAILED);
+        error_report(LIST_INV_SIZE);
+        err_val++;
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_pop_back_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int prev_pos = list_push_back(list, 10);
+    if (prev_pos == -1)
+        return -1;
+
+    elem_t value = 20;
+
+    int value_pos = list_push_back(list, value);
+    if (value_pos == -1)
+        return -1;
+
+    size_t prev_size = list->size;
+
+    int err_val = 0;
+    elem_t returning_value = list_pop_back(list, &err_val);
+    if (err_val == -1)
+        return -1;
+
+    if (returning_value != value) {
+
+        error_report(LIST_POP_BACK_TEST_FAILED);
+        error_report(LIST_POP_INV_RET_VALUE);
+        err_val++;
+    }
+
+    if (list->tail != (unsigned)prev_pos) {
+
+        error_report(LIST_POP_BACK_TEST_FAILED);
+        error_report(LIST_INV_TAIL);
+        err_val++;
+    }
+
+    if (list->next[prev_pos] != 0) {
+
+        error_report(LIST_POP_BACK_TEST_FAILED);
+        error_report(LIST_INV_TAIL_NEXT);
+        err_val++; 
+    }
+
+    if (list->prev[value_pos] != -1) {
+
+        error_report(LIST_POP_BACK_TEST_FAILED);
+        error_report(LIST_INV_PREV_FOR_FREE_ELEM);
+        err_val++; 
+    }
+
+    if (list->free != (unsigned)value_pos) {
+
+        error_report(LIST_POP_BACK_TEST_FAILED);
+        error_report(LIST_INV_FREE);
+        err_val++; 
+    }
+
+    if (list->size != prev_size - 1) {
+
+        error_report(LIST_POP_BACK_TEST_FAILED);
+        error_report(LIST_INV_SIZE);
+        err_val++; 
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_push_front_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int prev_pos = list_push_back(list, 10);
+    if (prev_pos == -1)
+        return -1;
+
+    elem_t value = 20;
+    int err_val = 0;
+
+    int value_pos = list_push_front(list, value);
+    if (value_pos == -1)
+        return -1;
+    
+    if (list->data[value_pos] != value) {
+
+        error_report(LIST_PUSH_FRONT_TEST_FAILED);
+        error_report(LIST_INV_DATA);
+        err_val++;
+    }
+
+    if (list->head != (unsigned)value_pos) {
+
+        error_report(LIST_PUSH_FRONT_TEST_FAILED);
+        error_report(LIST_INV_HEAD);
+        err_val++;
+    }
+
+    if (list->prev[value_pos] != 0) {
+
+        error_report(LIST_PUSH_FRONT_TEST_FAILED);
+        error_report(LIST_INV_HEAD_PREV);
+        err_val++;
+    }
+
+    if (list->next[value_pos] != prev_pos) {
+
+        error_report(LIST_PUSH_FRONT_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_pop_front_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int prev_pos = list_push_back(list, 10);
+    if (prev_pos == -1)
+        return -1;
+
+    elem_t value = 20;
+    int err_val = 0;
+
+    int value_pos = list_push_front(list, value);
+    if (value_pos == -1)
+        return -1;
+
+    size_t prev_size = list->size;
+
+    elem_t returning_value = list_pop_front(list, &err_val);
+    if (err_val == -1)
+        return -1;
+
+    if (returning_value != value) {
+
+        error_report(LIST_POP_FRONT_TEST_FAILED);
+        error_report(LIST_POP_INV_RET_VALUE);
+        err_val++;
+    }
+
+    if (list->head != (unsigned)prev_pos) {
+
+        error_report(LIST_POP_FRONT_TEST_FAILED);
+        error_report(LIST_INV_HEAD);
+        err_val++;
+    }
+
+    if (list->prev[value_pos] != -1) {
+
+        error_report(LIST_POP_FRONT_TEST_FAILED);
+        error_report(LIST_INV_PREV_FOR_FREE_ELEM);
+        err_val++; 
+    }
+
+    if (list->free != (unsigned)value_pos) {
+
+        error_report(LIST_POP_FRONT_TEST_FAILED);
+        error_report(LIST_INV_FREE);
+        err_val++; 
+    }
+
+    if (list->prev[value_pos] != -1) {
+
+        error_report(LIST_POP_FRONT_TEST_FAILED);
+        error_report(LIST_INV_PREV_FOR_FREE_ELEM);
+        err_val++; 
+    }
+
+    if (list->size != prev_size - 1) {
+
+        error_report(LIST_POP_FRONT_TEST_FAILED);
+        error_report(LIST_INV_SIZE);
+        err_val++;  
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_push_after_index_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int pos_1 = list_push_back(list, 1);
+    if (pos_1 == -1)
+        return -1;
+
+    int pos_2 = list_push_back(list, 2);
+    if (pos_2 == -1)
+        return -1;
+
+    elem_t value = 10;
+    size_t prev_size = list->size;
+
+    int err_val = 0;
+
+    int value_pos = list_push_after_index(list, 
+                       (unsigned)pos_1, value);
+    if (value_pos == -1)
+        return -1;
+
+    if (list->data[value_pos] != value) {
+
+        error_report(PUSH_AFTER_INDEX_TEST_FAILED);
+        error_report(LIST_INV_DATA);
+        err_val++;
+    }
+
+    if (list->prev[value_pos] != pos_1) {
+
+        error_report(PUSH_AFTER_INDEX_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (list->next[value_pos] != pos_2) {
+
+        error_report(PUSH_AFTER_INDEX_TEST_FAILED);
+        error_report(LIST_INV_NEXT);
+        err_val++;
+    }
+
+    if (list->prev[pos_2] != value_pos) {
+
+        error_report(PUSH_AFTER_INDEX_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (list->next[pos_1] != value_pos) {
+
+        error_report(PUSH_AFTER_INDEX_TEST_FAILED);
+        error_report(LIST_INV_NEXT);
+        err_val++;
+    }
+
+    if (list->size != prev_size + 1) {
+
+        error_report(PUSH_AFTER_INDEX_TEST_FAILED);
+        error_report(LIST_INV_SIZE);
+        err_val++; 
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_push_before_index_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int pos_1 = list_push_back(list, 1);
+    if (pos_1 == -1)
+        return -1;
+
+    int pos_2 = list_push_back(list, 2);
+    if (pos_2 == -1)
+        return -1;
+
+    elem_t value = 10;
+    size_t prev_size = list->size;
+
+    int err_val = 0;
+
+    int value_pos = list_push_before_index(list, 
+                        (unsigned)pos_2, value);
+
+    if (value_pos == -1)
+        return -1;
+
+    if (list->data[value_pos] != value) {
+
+        error_report(PUSH_BEFORE_INDEX_TEST_FAILED);
+        error_report(LIST_INV_DATA);
+        err_val++;
+    }
+
+    if (list->prev[value_pos] != pos_1) {
+
+        error_report(PUSH_BEFORE_INDEX_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (list->next[value_pos] != pos_2) {
+
+        error_report(PUSH_BEFORE_INDEX_TEST_FAILED);
+        error_report(LIST_INV_NEXT);
+        err_val++;
+    }
+
+    if (list->prev[pos_2] != value_pos) {
+
+        error_report(PUSH_BEFORE_INDEX_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++;
+    }
+
+    if (list->next[pos_1] != value_pos) {
+
+        error_report(PUSH_BEFORE_INDEX_TEST_FAILED);
+        error_report(LIST_INV_NEXT);
+        err_val++;
+    }
+
+    if (list->size != prev_size + 1) {
+
+        error_report(PUSH_BEFORE_INDEX_TEST_FAILED);
+        error_report(LIST_INV_SIZE);
+        err_val++; 
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+static int _list_pop_by_index_test(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    int ret = list_ctor(list);
+    if (ret == -1) {
+
+        error_report(LIST_CTOR_ERR);
+        return -1;
+    }
+
+    int pos_1 = list_push_back(list, 1);
+    if (pos_1 == -1)
+        return -1;
+
+    elem_t value = 10;
+
+    int value_pos = list_push_back(list, value);
+    if (value_pos == -1)
+        return -1;
+
+    int pos_2 = list_push_back(list, 2);
+    if (pos_2 == -1)
+        return -1;
+
+    int err_val = 0;
+    size_t prev_size = list->size;
+
+    elem_t returning_value = list_pop_by_index(list, (unsigned)value_pos, 
+                                                               &err_val);
+    if (err_val == -1)
+        return -1;
+    
+    if (returning_value != value) {
+
+        error_report(POP_BY_INDEX_TEST_FAILED);
+        error_report(LIST_POP_INV_RET_VALUE);
+        err_val++;
+    }
+
+    if (list->prev[value_pos] != -1) {
+
+        error_report(POP_BY_INDEX_TEST_FAILED);
+        error_report(LIST_INV_PREV_FOR_FREE_ELEM);
+        err_val++;
+    }
+
+    if (list->free != (unsigned)value_pos) {
+
+        error_report(POP_BY_INDEX_TEST_FAILED);
+        error_report(LIST_INV_FREE);
+        err_val++;
+    }
+
+    if (list->free != (unsigned)value_pos) {
+
+        error_report(POP_BY_INDEX_TEST_FAILED);
+        error_report(LIST_INV_FREE);
+        err_val++;
+    }
+
+    if (list->prev[pos_2] != pos_1) {
+
+        error_report(POP_BY_INDEX_TEST_FAILED);
+        error_report(LIST_INV_PREV);
+        err_val++; 
+    }
+
+    if (list->next[pos_1] != pos_2) {
+
+        error_report(POP_BY_INDEX_TEST_FAILED);
+        error_report(LIST_INV_NEXT);
+        err_val++; 
+    }
+
+    if (list->size != prev_size - 1) {
+
+        error_report(POP_BY_INDEX_TEST_FAILED);
+        error_report(LIST_INV_SIZE);
+        err_val++; 
+    }
+
+    if (err_val != 0) {
+
+        ret = list_dump(list, logs_file);
+        if (ret == -1)
+            return -1;
+    }
+
+    ret = list_dtor(list);
+    if (ret == -1) {
+
+        error_report(LIST_DTOR_ERR);
+        return -1;
+    }
+
+    return 1;
+}
+
+//===================================================================
+
+int _list_unit_tests(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    fprintf(logs_file, "<pre>\nList unit testing started\n</pre>");
+
+    int is_ok = 0;
+    int failed_test_count = 0;
+
+    is_ok = list_push_first_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    is_ok = list_pop_last_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    is_ok = list_push_back_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    is_ok = list_pop_back_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    is_ok = list_push_front_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    is_ok = list_pop_front_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    is_ok = list_push_after_index_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    is_ok = list_push_before_index_test(list);
+    if (is_ok == 0)
+        failed_test_count++;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+    
+    is_ok = list_pop_by_index_test(list);
+    if (is_ok == 0)
+        failed_test_count++;;
+        
+    if (is_ok == -1) {
+        error_report(TEST_CRITICAL_ERR);
+        return -1;
+    }
+
+    fprintf(logs_file, "<pre>\nTotal tests failed"
+                       " : %d\n</pre>", failed_test_count);
+
+    if (failed_test_count == 0)
+        fprintf(logs_file, "<pre>\n All tests passed"
+                            " successfully\n</pre>");
+
+    if (failed_test_count != 0)
+        return -1;
+    else
+        return 0;
+}
+

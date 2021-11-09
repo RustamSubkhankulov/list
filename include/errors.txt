@@ -158,7 +158,7 @@ DEF_ERR(736, LIST_INV_PREV_FOR_FREE_ELEM,
 Invalid free element: prev for free element is not -1)
 
 DEF_ERR(739, LIST_INV_FREE,
-List->free points out of list)
+List->free invalid value)
 
 DEF_ERR(740, INV_LOGICAL_NUMBER,
 Invalid number of element in logical order)
@@ -177,3 +177,57 @@ Invalid number of free eleemnts in list)
 
 DEF_ERR(745, INV_IS_LINEARIZED_VALUE,
 List->is_linearized has invalid value (value can be only 1 or 0))
+
+DEF_ERR(746, LIST_PUSH_FIRST_TEST_FAILED,
+Push_first work test was failed. Check out logs to have more information)
+
+DEF_ERR(747, LIST_POP_LAST_TEST_FAILED,
+Pop_last work test was failed. Check out logs to have more information)
+
+DEF_ERR(748, LIST_PUSH_BACK_TEST_FAILED,
+Push_back work test was failed. Check out logs to have more information)
+
+DEF_ERR(749, LIST_DATA_IS_EMPTY,
+List->data on index is empty after push)
+
+DEF_ERR(750, LIST_INV_PREV,
+Incorrect previous element)
+
+DEF_ERR(751, LIST_INV_NEXT,
+Incorrect next element)
+
+DEF_ERR(752, LIST_INV_DATA,
+Incorrect data in list)
+
+DEF_ERR(753, LIST_CTOR_ERR,
+An error occured during constructing list)
+
+DEF_ERR(754, LIST_DTOR_ERR,
+An error iccured duting destruction list)
+
+DEF_ERR(755, LIST_POP_INV_RET_VALUE,
+Incorrect returned value from list)
+
+DEF_ERR(756, LIST_INV_SIZE,
+Invalid size of list)
+
+DEF_ERR(757, LIST_POP_BACK_TEST_FAILED,
+Pop_back work test was failed. Check out logs to have more information)
+
+DEF_ERR(758, LIST_PUSH_FRONT_TEST_FAILED,
+Push_front work test was failed. Check out logs to have more information)
+
+DEF_ERR(759, LIST_POP_FRONT_TEST_FAILED,
+Pop_front work test was failed. Check out logs to have more information)
+
+DEF_ERR(760, PUSH_AFTER_INDEX_TEST_FAILED,
+Push_after_index test was failed. Check out logs to have more information)
+
+DEF_ERR(761, PUSH_BEFORE_INDEX_TEST_FAILED,
+Push_before_index test was failed. Check out logs to have more information)
+
+DEF_ERR(762, POP_BY_INDEX_TEST_FAILED,
+Pop_by_index test was failed. Check out logs to have more information)
+
+DEF_ERR(763, TEST_CRITICAL_ERR,
+Critical error occured during list unit resting)

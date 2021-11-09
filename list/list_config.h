@@ -35,6 +35,9 @@ const size_t List_max_capacity = 16;
 //Hash protection for list
 #define LIST_HASH
 
+//GRAPHVIZ
+#define LIST_GRAPHVIZ
+
 //Number of command line arguments 
 #define CMND_LINE_ARGS_NUMBER 2
 

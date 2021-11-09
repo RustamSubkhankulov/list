@@ -37,6 +37,8 @@ int _error_report(int error_code, LOG_PARAMS);
 
 FILE* open_log_file(const char* filename);
 
+int write_head_html(FILE* logs_file);
+
 int _close_log_file(LOG_PARAMS);
 
 int _log_report(LOG_PARAMS, const char* mother_func);
