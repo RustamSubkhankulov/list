@@ -44,9 +44,6 @@ const size_t List_max_capacity = 16;
 //GRAPHVIZ
 #define LIST_GRAPHVIZ
 
-//Number of command line arguments 
-#define CMND_LINE_ARGS_NUMBER 2
-
 //==================================================================
 
 //SUPPORTING DEFINITIONS

@@ -48,6 +48,11 @@ struct List {
 
 //==================================================================
 
+//Number of command line arguments 
+#define CMND_LINE_ARGS_NUMBER 2
+
+//==================================================================
+
 #define LIST_ARGC_CHECK(argc) {                                     \
                                                                     \
     if (argc != CMND_LINE_ARGS_NUMBER) {                            \
@@ -100,9 +105,6 @@ struct List {
 
 #define list_linearize(list) \
        _list_linearize(list, LOG_ARGS)
-
-#define list_unit_tests(list) \
-       _list_unit_tests(list, LOG_ARGS)
 
 #define list_hash_check(list) \
        _list_hash_check(list, LOG_ARGS)
@@ -200,32 +202,14 @@ struct List {
 #define list_get_by_logical_number(list, number, err) \
        _list_get_by_logical_number(list, number, err, LOG_ARGS)
 
-#define list_push_back_test(list) \
-       _list_push_back_test(list, LOG_ARGS)
+//===================================================================
 
-#define list_pop_back_test(list) \
-       _list_pop_back_test(list, LOG_ARGS)
+int _list_get_free(struct  List* list, LOG_PARAMS);
 
-#define list_push_front_test(list) \
-       _list_push_front_test(list, LOG_ARGS)
+elem_t _list_pop_last(struct List* list, int* err, LOG_PARAMS);  
 
-#define list_pop_front_test(list) \
-       _list_pop_front_test(list, LOG_ARGS)
-
-#define list_push_after_index_test(list) \
-       _list_push_after_index_test(list, LOG_ARGS)
-
-#define list_push_before_index_test(list) \
-       _list_push_before_index_test(list, LOG_ARGS)
-
-#define list_pop_by_index_test(list) \
-       _list_pop_by_index_test(list, LOG_ARGS)
-
-#define list_push_first_test(list) \
-       _list_push_first_test(list, LOG_ARGS)
-
-#define list_pop_last_test(list) \
-       _list_pop_last_test(list, LOG_ARGS)
+int _list_push_first(struct List* list, elem_t value, int free, 
+                                                   LOG_PARAMS);   
 
 //===================================================================
 
@@ -236,8 +220,6 @@ int _list_dtor(struct List* list, LOG_PARAMS);
 int _list_linearize(struct List* list, LOG_PARAMS);
 
 int _list_validator(struct List* list, LOG_PARAMS);
-
-int _list_unit_tests(struct List* list, LOG_PARAMS);
 
 int _list_draw_graph(struct List* list, LOG_PARAMS);
 

@@ -1,4 +1,5 @@
 #include "list/list.h"
+#include "list/list_tests.h"
 #include "stdlib.h"
 
 //===================================================================
@@ -16,9 +17,9 @@ int main(int argc, char* argv[]) {
 
     struct List list = { 0 };
 
-    // int is_ok = list_unit_tests(&list);
-    // if (is_ok == -1)
-    //     return -1;
+    int is_ok = list_unit_tests(&list);
+    if (is_ok == -1)
+        return -1;
 
     err_val = list_ctor(&list); $
 

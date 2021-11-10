@@ -24,7 +24,11 @@ int _error_report(int error_code, LOG_PARAMS) {
                     " see logs to get more information about"
                                     " programm performing\n");
 
-    fprintf(logs_file, "\n\n<div style = \" font-size: 15; text-align: center; color: white; background-color: red;\"><pre>\n");
+    fprintf(logs_file, "\n\n<div style = \" font-size: 15;"
+                                          " text-align: center;"
+                                          " color: white;"
+                                          " background-color: red;\">"
+                                          " <pre>\n");
 
     fprintf(logs_file, "\nACHTUNG!!\n");
 
@@ -40,19 +44,6 @@ int _error_report(int error_code, LOG_PARAMS) {
 
     return 0;
 }
-
-//===================================================
-
-// int _error_message(const char* message, LOG_PARAMS) {
-
-//     fprintf(stderr, "Error message from file %s\n", file_name);
-
-//     fprintf(stderr, "Function: %s\n", func_name);
-
-//     fprintf(stderr, "Line: %d\n", line);
-
-//     fprintf(stderr, "\n%s\n\n", message);
-// }
 
 //===================================================
 
@@ -88,8 +79,16 @@ int write_head_html(FILE* logs_file) {
 
     fprintf(logs_file, "<html><head>");
 
-    fprintf(logs_file, "<style>\n .outline {\n border: 0px solid black;\n padding: 0 10px; \n bgcolor = \"#196fA1\";\n color = \"white\";\n}\n </style>");
-    fprintf(logs_file, "<style>\n .table { background: lightgrey; padding: 5px; border: 1px solid black;}\n</stile>");
+    fprintf(logs_file, "<style>\n .outline {\n border: 0px solid black;"
+                                           "\n padding: 0 10px;"
+                                           "\n bgcolor = \"#196fA1\";"
+                                           "\n color = \"white\";"
+                                           "\n}\n </style>");
+
+    fprintf(logs_file, "<style>\n .table { \n background: lightgrey;"
+                                          "\n padding: 5px; border: 1px solid black;"
+                                          "\n}\n</style>");
+                                          
     fprintf(logs_file, "<style> \n td {\n border: 1px solid black;\n}\n </style>");
     
     fprintf(logs_file, "</head>");

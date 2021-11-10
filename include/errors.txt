@@ -220,14 +220,17 @@ Push_front work test was failed. Check out logs to have more information)
 DEF_ERR(759, LIST_POP_FRONT_TEST_FAILED,
 Pop_front work test was failed. Check out logs to have more information)
 
-DEF_ERR(760, PUSH_AFTER_INDEX_TEST_FAILED,
+DEF_ERR(760, LIST_PUSH_AFTER_INDEX_TEST_FAILED,
 Push_after_index test was failed. Check out logs to have more information)
 
-DEF_ERR(761, PUSH_BEFORE_INDEX_TEST_FAILED,
+DEF_ERR(761, LIST_PUSH_BEFORE_INDEX_TEST_FAILED,
 Push_before_index test was failed. Check out logs to have more information)
 
-DEF_ERR(762, POP_BY_INDEX_TEST_FAILED,
+DEF_ERR(762, LIST_POP_BY_INDEX_TEST_FAILED,
 Pop_by_index test was failed. Check out logs to have more information)
 
 DEF_ERR(763, TEST_CRITICAL_ERR,
 Critical error occured during list unit resting)
+
+DEF_ERR(764, LIST_CTOR_TEST_FAILED,
+List_ctor test was failed. Check out logs to have more information)
