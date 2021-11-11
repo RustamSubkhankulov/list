@@ -8,6 +8,16 @@
 
 //===================================================
 
+// #define ERRORS_MAX_COUNT 20
+
+// int Error_counter = 0;
+
+// long int Error_pos = 0;
+
+// int Error_codes[ERRORS_MAX_COUNT] = { 0 };
+
+//===================================================
+
 int _error_report(int error_code, LOG_PARAMS) {
 
     fprintf(stderr, "\n ACHTUNG!!\n");
@@ -27,8 +37,7 @@ int _error_report(int error_code, LOG_PARAMS) {
     fprintf(logs_file, "\n\n<div style = \" font-size: 15;"
                                           " text-align: center;"
                                           " color: white;"
-                                          " background-color: red;\">"
-                                          " <pre>\n");
+                                          " background-color: red;\"><pre>\n");
 
     fprintf(logs_file, "\nACHTUNG!!\n");
 
@@ -141,9 +150,12 @@ int _log_report(LOG_PARAMS, const char* mother_func) {
 
     fprintf(logs_file, "\n<pre>\n");
 
-    int value = fprintf(logs_file, "<div class=\"outline\"  style = \"background-color:lightgrey;\" style = \"text-align: center;\"><b>Funtion: %s\n\n</b> Called from: function: <b>%s</b>, file: <b>%s</b>."
-                                      " Current line: <b>%d</b>.\n </div>", mother_func, func_name, 
-                                                                      file_name, line);
+    int value = fprintf(logs_file, "<div class=\"outline\"  "
+                                   "style = \"background-color:lightgrey;\" "
+                                   "style = \"text-align: center;\"><b>Funtion: %s\n\n</b> "
+                                   "Called from: function: <b>%s</b>, file: <b>%s</b>."
+                                   "Current line: <b>%d</b>.\n </div>", mother_func, 
+                                                        func_name, file_name, line);
 
     fprintf(logs_file, "\n</pre>\n");
 

@@ -5,22 +5,22 @@ CFLAGS = -lubsan -D NDEBUG -g -std=c++14 -fmax-errors=1 -Wall -Wextra -Weffc++ -
 all: global 
 
 global: list.o list_tests.o errors_and_logs.o general.o main.o
-	g++ list.o list_tests.o errors_and_logs.o general.o main.o -o list.exe
+	g++ list.o list_tests.o errors_and_logs.o general.o main.o -o list.exe $(CFLAGS)
 
 list.o: list/list.cpp
-	$(CC) list/list.cpp -c
+	$(CC) list/list.cpp -c  $(CFLAGS)
 
 list_tests.o: list/list_tests.cpp
-	$(CC) list/list_tests.cpp -c 
+	$(CC) list/list_tests.cpp -c  $(CFLAGS)
 
 main.o: main.cpp
-	$(CC) main.cpp -c
+	$(CC) main.cpp -c $(CFLAGS)
 
 errors_and_logs.o: logs/errors_and_logs.cpp
-	$(CC) logs/errors_and_logs.cpp -c
+	$(CC) logs/errors_and_logs.cpp -c $(CFLAGS)
 
 general.o: general/general.cpp
-	$(CC) general/general.cpp -c
+	$(CC) general/general.cpp -c $(CFLAGS)
 
 clean:
 	rm *.o  

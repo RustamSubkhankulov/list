@@ -144,6 +144,80 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
 
 //===================================================================
 
+int _list_draw_graph_logical(struct List* list, LOG_PARAMS) {
+
+    list_log_report();
+    LIST_POINTER_CHECK(list);
+
+    if (list->size == 0)
+        return 0;
+
+    FILE* graph = fopen(TEMP_DIR "list_graph.txt", "wb");
+
+    fprintf(graph, "digraph G{\n");
+    fprintf(graph, "rankdir=HR;\n");
+    fprintf(graph, "{rank = same; \n");
+
+    unsigned int index = list->head;
+
+    do {
+
+        fprintf(graph, "ELEMENT%u [shape=none, margin=0, style=rounded,"
+                                                " label=<\n", index);
+
+        fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\""
+                                                      " CELLPADDING=\"4\">\n"); 
+
+        fprintf(graph, "<TR><TD COLSPAN=\"3\" BGCOLOR=\"lightgrey\"> INDEX = %u"
+                                                      " </TD></TR>\n", index);
+
+        if (index == list->tail)
+            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b> TAIL OF LIST"
+                                                 "</b></TD></TR>\n");
+
+        if (index == list->head)
+            fprintf(graph, "<TR><TD COLSPAN=\"3\">  <b> HEAD OF LIST"
+                                                 "</b></TD></TR>\n");
+
+        fprintf(graph, "<TR><TD PORT=\"prev\"> PREV = %d</TD>\n",
+                                              list->prev[index]);
+
+        fprintf(graph, "<TD PORT=\"data\"> DATA = %d </TD>\n", 
+                                           list->data[index]);
+
+        fprintf(graph, "<TD PORT=\"next\"> NEXT = %d</TD></TR></TABLE>>];\n", 
+                                                         list->next[index]);
+
+        if (index != list->tail)
+            fprintf(graph, "ELEMENT%u:<next> -> ELEMENT%d:<prev>;\n", index, list->next[index]);
+
+        index = (unsigned)list->next[index];
+
+    } while (index != 0);
+
+    fprintf(graph, "}\n}\n");
+    fclose(graph);
+
+    char command_buffer[SYSTEM_COMMAND_BUF_SIZE] = { 0 };
+    sprintf(command_buffer, "dot " TEMP_DIR "list_graph.txt -Tpng"
+                            " -o " TEMP_DIR "list_images/list_graph%d.png", 
+                                                            Graph_counter);
+
+    int ret = system(command_buffer);
+    if (ret != 0)
+        return -1;
+
+    fprintf(logs_file, "\n <img src = list_images/list_graph%d.png "
+                                     "alt = \"List graph has not found\">\n\n", 
+                                                                Graph_counter);
+
+    Graph_counter++;
+
+    return 0;
+}
+
+//===================================================================
+
 #ifdef LIST_HASH
 
 static int _list_save_hash(struct List* list, LOG_PARAMS) {
@@ -1278,6 +1352,10 @@ int _list_dump(struct List* list, FILE* output, LOG_PARAMS) {
     #ifdef LIST_GRAPHVIZ
 
         ret = list_draw_graph(list);
+        if (ret == -1)
+            return -1;
+
+        ret = list_draw_graph_logical(list);
         if (ret == -1)
             return -1;
 

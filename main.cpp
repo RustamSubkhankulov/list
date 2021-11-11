@@ -32,12 +32,25 @@ int main(int argc, char* argv[]) {
 
     err_val = list_push_front(&list, 35);$
     err_val = list_push_front(&list, 34);$
-    err_val = list_push_front(&list, 33);$
+    //list_dtor(&list);
+    err_val = list_push_front(&list, 33);
 
-    err_val = list_push_front(&list, 32);$
-    err_val = list_push_front(&list, 31);$
+    err_val = list_push_front(&list, 32);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    list_pop_by_index(&list, 0, &err_val);
+    err_val = list_push_front(&list, 31);
 
-    list_linearize(&list);$
+    list_linearize(&list);
 
     fflush(logs_file);
 
