@@ -87,8 +87,13 @@ int _list_draw_graph(struct List* list, LOG_PARAMS) {
 
         fprintf(graph, "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\""
                                                       " CELLPADDING=\"4\">\n"); 
+        if (list->prev[counter] == -1)
 
-        fprintf(graph, "<TR><TD COLSPAN=\"3\" BGCOLOR=\"lightgrey\"> INDEX = %u"
+            fprintf(graph, "<TR><TD COLSPAN=\"3\"> INDEX = %u"
+                                                      " </TD></TR>\n", counter);
+        else
+
+            fprintf(graph, "<TR><TD COLSPAN=\"3\" BGCOLOR=\"lightgrey\"> INDEX = %u"
                                                       " </TD></TR>\n", counter);
 
         if (counter == list->tail)
